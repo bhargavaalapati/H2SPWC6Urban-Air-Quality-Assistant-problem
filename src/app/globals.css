@@ -1,11 +1,18 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  color-scheme: light;
   --surface-canvas: #f6f7f4;
-  --surface-card: #ffffff;
   --ink-primary: #18221f;
-  --ink-secondary: #4a5a55;
   --accent-forest: #1f5c4d;
+}
+
+.dark {
+  color-scheme: dark;
+  --surface-canvas: #0b1110;
+  --ink-primary: #edf3f0;
+  --accent-forest: #34d399;
 }
 
 html {
@@ -27,7 +34,7 @@ h4 {
 }
 
 *:focus-visible {
-  outline: 2px solid #1f5c4d;
+  outline: 2px solid var(--accent-forest);
   outline-offset: 2px;
 }
 

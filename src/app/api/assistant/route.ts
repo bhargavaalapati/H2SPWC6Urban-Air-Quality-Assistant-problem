@@ -3,6 +3,17 @@ import { assistantRequestSchema } from '@/domain/air-quality/schemas';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { answerFamilyAirQuestion } from '@/services/ai-assistant';
 
+const DEFAULT_DAILY_LIMIT = 10;
+const DAY_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function getDailyQuestionLimit(): number {
+  const raw = Number(process.env.ASSISTANT_DAILY_LIMIT);
+  if (Number.isInteger(raw) && raw >= 1 && raw <= 100) {
+    return raw;
+  }
+  return DEFAULT_DAILY_LIMIT;
+}
+
 function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
@@ -13,16 +24,29 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  const rate = checkRateLimit(`assistant:${getClientIp(request)}`, 15, 60_000);
+  const limit = getDailyQuestionLimit();
+  const rate = checkRateLimit(`assistant:${getClientIp(request)}`, limit, DAY_WINDOW_MS);
+
+  const quota = {
+    remaining: rate.remaining,
+    limit: rate.limit,
+    resetInSeconds: rate.retryAfterSeconds,
+  };
+
   if (!rate.allowed) {
     return NextResponse.json(
       {
-        error: 'You have asked several questions quickly. Please wait a moment and try again.',
+        error: `You've used all ${rate.limit} AI assistant questions for today. Your daily checklist, indoor hacks, and air-quality guide remain unlimited.`,
         code: 'RATE_LIMITED',
+        quota,
       },
       {
         status: 429,
-        headers: { 'Retry-After': String(rate.retryAfterSeconds) },
+        headers: {
+          'Retry-After': String(rate.retryAfterSeconds),
+          'X-RateLimit-Limit': String(rate.limit),
+          'X-RateLimit-Remaining': '0',
+        },
       }
     );
   }
@@ -32,7 +56,7 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { error: 'Invalid JSON request payload.', code: 'INVALID_JSON' },
+      { error: 'Invalid JSON request payload.', code: 'INVALID_JSON', quota },
       { status: 400 }
     );
   }
@@ -43,6 +67,7 @@ export async function POST(request: NextRequest) {
       {
         error: parsed.error.issues[0]?.message ?? 'Please enter a valid question.',
         code: 'VALIDATION_ERROR',
+        quota,
       },
       { status: 400 }
     );
@@ -54,5 +79,14 @@ export async function POST(request: NextRequest) {
     parsed.data.profile
   );
 
-  return NextResponse.json({ reply }, { status: 200 });
+  return NextResponse.json(
+    { reply, quota },
+    {
+      status: 200,
+      headers: {
+        'X-RateLimit-Limit': String(rate.limit),
+        'X-RateLimit-Remaining': String(rate.remaining),
+      },
+    }
+  );
 }

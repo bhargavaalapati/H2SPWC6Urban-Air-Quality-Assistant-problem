@@ -6,6 +6,8 @@ import {
   AirQualityServiceError,
   fetchAirQualityByCity,
   fetchAirQualityForLocation,
+  reverseGeocodeCoords,
+  searchCitySuggestions,
 } from '@/services/open-meteo';
 
 function getClientIp(request: NextRequest): string {
@@ -18,7 +20,7 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function GET(request: NextRequest) {
-  const rate = checkRateLimit(`aqi:${getClientIp(request)}`, 40, 60_000);
+  const rate = checkRateLimit(`aqi:${getClientIp(request)}`, 60, 60_000);
   if (!rate.allowed) {
     return NextResponse.json(
       {
@@ -33,11 +35,28 @@ export async function GET(request: NextRequest) {
   }
 
   const { searchParams } = new URL(request.url);
+  const suggest = searchParams.get('suggest');
   const demoId = searchParams.get('demo');
   const city = searchParams.get('city');
   const latParam = searchParams.get('lat');
   const lonParam = searchParams.get('lon');
   const labelParam = searchParams.get('label');
+  const regionParam = searchParams.get('region');
+  const countryParam = searchParams.get('country');
+
+  // 0. Live city autocomplete suggestions
+  if (suggest !== null) {
+    const trimmed = suggest.trim();
+    if (trimmed.length < 2 || trimmed.length > 80) {
+      return NextResponse.json({ suggestions: [] }, { status: 200 });
+    }
+    try {
+      const suggestions = await searchCitySuggestions(trimmed);
+      return NextResponse.json({ suggestions }, { status: 200 });
+    } catch {
+      return NextResponse.json({ suggestions: [] }, { status: 200 });
+    }
+  }
 
   // 1. Explicitly labeled demo scenario
   if (demoId) {
@@ -51,7 +70,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ snapshot: scenario.snapshot }, { status: 200 });
   }
 
-  // 2. Coordinate lookup (optional user geolocation)
+  // 2. Coordinate lookup (Near Me reverse-geocoding OR exact autocomplete selection)
   if (latParam !== null && lonParam !== null) {
     const latitude = Number(latParam);
     const longitude = Number(lonParam);
@@ -70,11 +89,17 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const snapshot = await fetchAirQualityForLocation({
-        name: labelParam?.trim() || 'Current Location',
-        latitude,
-        longitude,
-      });
+      const resolvedLocation = labelParam?.trim()
+        ? {
+            name: labelParam.trim(),
+            region: regionParam?.trim() || undefined,
+            country: countryParam?.trim() || undefined,
+            latitude,
+            longitude,
+          }
+        : await reverseGeocodeCoords(latitude, longitude);
+
+      const snapshot = await fetchAirQualityForLocation(resolvedLocation);
       return NextResponse.json({ snapshot }, { status: 200 });
     } catch (error) {
       return handleServiceError(error);

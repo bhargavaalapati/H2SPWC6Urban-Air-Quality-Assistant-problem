@@ -17,17 +17,17 @@ export function IndoorAlternativesSection({
   return (
     <section
       aria-label="Family-friendly indoor activity alternatives"
-      className="rounded-2xl border border-indigo-200/70 bg-gradient-to-br from-indigo-50/50 via-white to-stone-50 p-5 shadow-xs sm:p-6"
+      className="rounded-2xl border border-indigo-200/70 bg-gradient-to-br from-indigo-50/50 via-white to-stone-50 p-5 shadow-xs dark:border-indigo-900/70 dark:from-indigo-950/35 dark:via-slate-900 dark:to-slate-950 sm:p-6"
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-900">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-900 dark:bg-indigo-950 dark:text-indigo-200">
           <Home className="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-slate-950">
+          <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
             Indoor Alternatives Instead of the Park
           </h2>
-          <p className="mt-0.5 text-sm text-slate-600">
+          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
             Because outdoor air is elevated today, swap active outdoor play for these low-cost,
             low-exertion home activities.
           </p>
@@ -38,10 +38,10 @@ export function IndoorAlternativesSection({
         {alternatives.map((item) => (
           <article
             key={item.id}
-            className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs"
+            className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs dark:border-slate-800 dark:bg-slate-950/70"
           >
-            <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
-              <span className="inline-flex items-center gap-1 font-medium text-indigo-900">
+            <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <span className="inline-flex items-center gap-1 font-medium text-indigo-900 dark:text-indigo-300">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 {item.ageNote}
               </span>
@@ -50,9 +50,15 @@ export function IndoorAlternativesSection({
                 {item.duration}
               </span>
             </div>
-            <h3 className="mt-2 text-sm font-semibold text-slate-900">{item.title}</h3>
-            <p className="mt-1 text-xs leading-relaxed text-slate-600">{item.description}</p>
-            <p className="mt-2 text-[11px] font-medium text-emerald-800">{item.costNote}</p>
+            <h3 className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
+              {item.title}
+            </h3>
+            <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+              {item.description}
+            </p>
+            <p className="mt-2 text-[11px] font-medium text-emerald-800 dark:text-emerald-400">
+              {item.costNote}
+            </p>
           </article>
         ))}
       </div>

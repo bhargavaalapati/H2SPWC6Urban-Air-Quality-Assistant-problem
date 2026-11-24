@@ -55,9 +55,9 @@ export const planRequestSchema = z.object({
 });
 
 export const aiAssistantStructuredSchema = z.object({
-  answer: z.string().min(12).max(900),
-  practicalSteps: z.array(z.string().min(6).max(200)).min(1).max(4),
-  uncertaintyNote: z.string().max(260).optional(),
+  answer: z.string().min(10).max(1600),
+  practicalSteps: z.array(z.string().min(4).max(350)).min(1).max(6),
+  uncertaintyNote: z.string().max(400).nullish(),
 });
 
 export type AssistantResponseMode = 'ai' | 'deterministic_fallback';
@@ -85,7 +85,9 @@ const UNSAFE_OUTDOOR_EXERTION_PATTERNS = [
 ];
 
 const NEGATION_PREFIX_PATTERNS = [
-  /\b(?:do\s+not|don't|avoid|skip|never|instead\s+of|rather\s+than)\b/i,
+  /\b(?:do\s+not|don't|avoid|skip|never|instead\s+of|rather\s+than|unsafe\s+to|shouldn't|should\s+not)\b/i,
+  /\bif\s+you\s+open\b/i,
+  /\bopening\s+(?:the\s+|your\s+)?windows?\s+(?:pulls|lets|brings|allows|can\s+let|will\s+let)\b/i,
 ];
 
 function containsUnsafeAffirmativeAdvice(text: string, patterns: RegExp[]): boolean {

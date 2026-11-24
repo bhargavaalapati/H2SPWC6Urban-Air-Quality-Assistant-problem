@@ -4,6 +4,7 @@ import {
   clearAirQualityCache,
   fetchAirQualityByCity,
   fetchAirQualityForLocation,
+  reverseGeocodeCoords,
 } from '@/services/open-meteo';
 
 describe('open-meteo service', () => {
@@ -147,5 +148,35 @@ describe('open-meteo service', () => {
     ).rejects.toMatchObject({
       code: 'UPSTREAM_TIMEOUT',
     } satisfies Partial<AirQualityServiceError>);
+  });
+  
+  it('reverse-geocodes GPS coordinates into a human-readable city and region', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          city: 'Hyderabad',
+          principalSubdivision: 'Telangana',
+          countryName: 'India',
+        }),
+      })
+    );
+
+    const loc = await reverseGeocodeCoords(17.385, 78.4867);
+    expect(loc.name).toBe('Hyderabad');
+    expect(loc.region).toBe('Telangana');
+    expect(loc.country).toBe('India');
+  });
+
+  it('falls back to formatted coordinates if reverse-geocoding fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValueOnce(new Error('Network down'))
+    );
+
+    const loc = await reverseGeocodeCoords(17.385, 78.4867);
+    expect(loc.name).toContain('17.39');
+    expect(loc.name).toContain('78.49');
   });
 });

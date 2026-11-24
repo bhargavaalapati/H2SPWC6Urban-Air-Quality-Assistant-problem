@@ -8,12 +8,12 @@ const buckets = new Map<string, RateLimitEntry>();
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
+  limit: number;
   retryAfterSeconds: number;
 }
 
 /**
- * Lightweight in-memory sliding-window rate limiter per client key (IP + route).
- * Suitable for single-instance / serverless burst protection without external infrastructure.
+ * Lightweight in-memory fixed-window rate limiter per client key (IP + route).
  */
 export function checkRateLimit(
   key: string,
@@ -23,7 +23,6 @@ export function checkRateLimit(
   const now = Date.now();
   const existing = buckets.get(key);
 
-  // Periodic cleanup to keep memory bounded
   if (buckets.size > 500) {
     for (const [bucketKey, entry] of buckets.entries()) {
       if (entry.resetAt <= now) {
@@ -37,6 +36,7 @@ export function checkRateLimit(
     return {
       allowed: true,
       remaining: Math.max(0, maxRequests - 1),
+      limit: maxRequests,
       retryAfterSeconds: Math.ceil(windowMs / 1000),
     };
   }
@@ -45,6 +45,7 @@ export function checkRateLimit(
     return {
       allowed: false,
       remaining: 0,
+      limit: maxRequests,
       retryAfterSeconds: Math.max(1, Math.ceil((existing.resetAt - now) / 1000)),
     };
   }
@@ -53,6 +54,7 @@ export function checkRateLimit(
   return {
     allowed: true,
     remaining: Math.max(0, maxRequests - existing.count),
+    limit: maxRequests,
     retryAfterSeconds: Math.max(1, Math.ceil((existing.resetAt - now) / 1000)),
   };
 }

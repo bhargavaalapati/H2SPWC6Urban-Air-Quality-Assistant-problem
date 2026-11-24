@@ -9,7 +9,10 @@ import type {
 
 const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const AIR_QUALITY_URL = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+const REVERSE_GEOCODE_URL =
+  'https://api.bigdatacloud.net/data/reverse-geocode-client';
 const REQUEST_TIMEOUT_MS = 7000;
+const REVERSE_TIMEOUT_MS = 4000;
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const DELAYED_THRESHOLD_MS = 3 * 60 * 60 * 1000; // 3 hours
 
@@ -25,6 +28,13 @@ const geocodeResponseSchema = z.object({
       })
     )
     .optional(),
+});
+
+const reverseGeocodeSchema = z.object({
+  city: z.string().optional(),
+  locality: z.string().optional(),
+  principalSubdivision: z.string().optional(),
+  countryName: z.string().optional(),
 });
 
 const openMeteoAirSchema = z.object({
@@ -72,9 +82,12 @@ export function clearAirQualityCache(): void {
   snapshotCache.clear();
 }
 
-async function fetchJsonWithTimeout(url: string): Promise<unknown> {
+async function fetchJsonWithTimeout(
+  url: string,
+  timeoutMs: number = REQUEST_TIMEOUT_MS
+): Promise<unknown> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
@@ -143,6 +156,117 @@ export async function geocodeCity(city: string): Promise<LocationInfo> {
     latitude: bestMatch.latitude,
     longitude: bestMatch.longitude,
   };
+}
+
+const suggestionCache = new Map<string, { items: LocationInfo[]; expiresAt: number }>();
+
+/**
+ * Returns up to 6 city suggestions for live autocomplete as the user types.
+ */
+export async function searchCitySuggestions(query: string): Promise<LocationInfo[]> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+
+  const cacheKey = trimmed.toLowerCase();
+  const now = Date.now();
+  const cached = suggestionCache.get(cacheKey);
+  if (cached && cached.expiresAt > now) {
+    return cached.items;
+  }
+
+  const params = new URLSearchParams({
+    name: trimmed,
+    count: '6',
+    language: 'en',
+    format: 'json',
+  });
+
+  const raw = await fetchJsonWithTimeout(
+    `${GEOCODE_URL}?${params.toString()}`,
+    REVERSE_TIMEOUT_MS
+  );
+  const parsed = geocodeResponseSchema.safeParse(raw);
+  if (!parsed.success || !parsed.data.results) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const items: LocationInfo[] = [];
+
+  for (const r of parsed.data.results) {
+    const dedupeKey = `${r.name.toLowerCase()}|${(r.admin1 ?? '').toLowerCase()}|${(r.country ?? '').toLowerCase()}`;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+
+    items.push({
+      name: r.name,
+      region: r.admin1,
+      country: r.country,
+      latitude: r.latitude,
+      longitude: r.longitude,
+    });
+  }
+
+  suggestionCache.set(cacheKey, { items, expiresAt: now + CACHE_TTL_MS });
+  return items;
+}
+
+/**
+ * Resolves GPS coordinates into a human-readable city/locality name.
+ * Gracefully falls back to formatted coordinates if reverse geocoding is unavailable
+ * so live AQI fetching never fails solely due to reverse lookup.
+ */
+export async function reverseGeocodeCoords(
+  latitude: number,
+  longitude: number
+): Promise<LocationInfo> {
+  const fallback: LocationInfo = {
+    name: `Location (${latitude.toFixed(2)}, ${longitude.toFixed(2)})`,
+    latitude,
+    longitude,
+  };
+
+  try {
+    const params = new URLSearchParams({
+      latitude: String(latitude),
+      longitude: String(longitude),
+      localityLanguage: 'en',
+    });
+
+    const raw = await fetchJsonWithTimeout(
+      `${REVERSE_GEOCODE_URL}?${params.toString()}`,
+      REVERSE_TIMEOUT_MS
+    );
+    const parsed = reverseGeocodeSchema.safeParse(raw);
+    if (!parsed.success) {
+      return fallback;
+    }
+
+    const name =
+      parsed.data.city?.trim() ||
+      parsed.data.locality?.trim() ||
+      parsed.data.principalSubdivision?.trim();
+
+    if (!name) {
+      return fallback;
+    }
+
+    const region =
+      parsed.data.principalSubdivision?.trim() &&
+      parsed.data.principalSubdivision.trim() !== name
+        ? parsed.data.principalSubdivision.trim()
+        : undefined;
+
+    return {
+      name,
+      region,
+      country: parsed.data.countryName?.trim() || undefined,
+      latitude,
+      longitude,
+    };
+  } catch {
+    return fallback;
+  }
 }
 
 function determineProvenance(

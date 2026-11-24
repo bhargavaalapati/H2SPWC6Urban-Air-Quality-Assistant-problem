@@ -1,8 +1,13 @@
+import {
+  INITIAL_GAMIFICATION_STATE,
+  type GamificationState,
+} from '@/domain/air-quality/gamification';
 import { DEFAULT_FAMILY_PROFILE, familyProfileSchema } from '@/domain/air-quality/schemas';
 import type { FamilyProfile } from '@/domain/air-quality/types';
 
 const PROFILE_KEY = 'airnest_family_profile_v1';
 const CHECKLIST_PREFIX = 'airnest_checklist_v1_';
+const GAMIFICATION_KEY = 'airnest_gamification_v1';
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -55,6 +60,33 @@ export function saveCompletedIds(storageKey: string, ids: string[]): void {
   if (!isBrowser()) return;
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(ids));
+  } catch {
+    // Ignore storage quota or private mode errors gracefully
+  }
+}
+
+export function loadGamificationState(): GamificationState {
+  if (!isBrowser()) return INITIAL_GAMIFICATION_STATE;
+  try {
+    const raw = window.localStorage.getItem(GAMIFICATION_KEY);
+    if (!raw) return INITIAL_GAMIFICATION_STATE;
+    const parsed = JSON.parse(raw) as Partial<GamificationState>;
+    return {
+      ...INITIAL_GAMIFICATION_STATE,
+      ...parsed,
+      topicsReadIds: Array.isArray(parsed.topicsReadIds)
+        ? parsed.topicsReadIds.filter((id): id is string => typeof id === 'string')
+        : [],
+    };
+  } catch {
+    return INITIAL_GAMIFICATION_STATE;
+  }
+}
+
+export function saveGamificationState(state: GamificationState): void {
+  if (!isBrowser()) return;
+  try {
+    window.localStorage.setItem(GAMIFICATION_KEY, JSON.stringify(state));
   } catch {
     // Ignore storage quota or private mode errors gracefully
   }

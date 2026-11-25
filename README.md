@@ -5,26 +5,18 @@
 > *Don't just tell families how polluted the air is. Tell them what they can realistically do about it today.*
 
 
-<p align="center">&#x20; 
-<img src="[https://img.shields.io/badge/PromptWars-Virtual%20Challenge%2006-0f766e?style=for-the-badge](https://img.shields.io/badge/PromptWars-Virtual%20Challenge%2006-0f766e?style=for-the-badge)" alt="PromptWars Challenge 06" />&#x20; 
-<img src="[https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge\&logo=next.js)" alt="Next.js 15" />
-&#x20; 
-<img src="[https://img.shields.io/badge/React-19-149eca?style=for-the-badge&logo=react](https://img.shields.io/badge/React-19-149eca?style=for-the-badge\&logo=react)" alt="React 19" />
-&#x20;
-<img src="[https://img.shields.io/badge/TypeScript-Strict-3178c6?style=for-the-badge&logo=typescript](https://img.shields.io/badge/TypeScript-Strict-3178c6?style=for-the-badge\&logo=typescript)" alt="Strict TypeScript" />
-&#x20;
-<img src="[https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8?style=for-the-badge&logo=tailwindcss](https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8?style=for-the-badge\&logo=tailwindcss)" alt="Tailwind CSS v4" />
+ <p align="center">
+  <img src="https://img.shields.io/badge/PromptWars-Virtual%20Challenge%2006-0f766e?style=for-the-badge" alt="PromptWars Challenge 06" />
+  <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js 15" />
+  <img src="https://img.shields.io/badge/React-19-149eca?style=for-the-badge&logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-Strict-3178c6?style=for-the-badge&logo=typescript" alt="Strict TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS v4" />
 </p>
 
 <p align="center">
-&#x20;
-<img src="[https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square](https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square)" alt="Safety first" />
-&#x20;
-<img src="[https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square](https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square)" alt="Grounded AI" />
-&#x20; 
-<img src="[https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square](https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square)" alt="No signup required" />
-&#x20;
-<img src="[https://img.shields.io/badge/License-Add%20License%20Before%20Release-gray?style=flat-square](https://img.shields.io/badge/License-Add%20License%20Before%20Release-gray?style=flat-square)" alt="License not yet specified" />
+  <img src="https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square" alt="Safety first" />
+  <img src="https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square" alt="Grounded AI" />
+  <img src="https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square" alt="No signup required" />
 </p>
 
 ---

@@ -65,20 +65,6 @@ Rather than simply reporting pollution, AirNest helps families understand:
 
 ---
 
-## 📸 Product Experience
-
-\<!-- Replace these placeholders with screenshots from the actual application -->
-
-| Air Quality Dashboard         | Personalized Action Plan       |
-| ----------------------------- | ------------------------------ |
-| Add dashboard screenshot here | Add daily plan screenshot here |
-
-| AI Air Assistant              | Family Checklist              |
-| ----------------------------- | ----------------------------- |
-| Add assistant screenshot here | Add checklist screenshot here |
-
----
-
 ## 🏗️ System Architecture
 
 AirNest separates environmental data, deterministic safety logic, AI orchestration, application services and UI components to keep safety-critical decisions predictable and maintainable.

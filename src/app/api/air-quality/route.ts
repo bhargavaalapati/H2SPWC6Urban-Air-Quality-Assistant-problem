@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDemoScenarioById } from '@/domain/air-quality/demo-scenarios';
 import { locationQuerySchema } from '@/domain/air-quality/schemas';
+import { apiError, getClientIp } from '@/lib/http';
 import { checkRateLimit } from '@/lib/rate-limit';
 import {
   AirQualityServiceError,
@@ -10,27 +11,14 @@ import {
   searchCitySuggestions,
 } from '@/services/open-meteo';
 
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim();
-    if (first) return first;
-  }
-  return 'local-client';
-}
-
 export async function GET(request: NextRequest) {
   const rate = checkRateLimit(`aqi:${getClientIp(request)}`, 60, 60_000);
   if (!rate.allowed) {
-    return NextResponse.json(
-      {
-        error: 'Too many air-quality lookups. Please wait a moment and try again.',
-        code: 'RATE_LIMITED',
-      },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(rate.retryAfterSeconds) },
-      }
+    return apiError(
+      'Too many air-quality lookups. Please wait a moment and try again.',
+      'RATE_LIMITED',
+      429,
+      { headers: { 'Retry-After': String(rate.retryAfterSeconds) } }
     );
   }
 
@@ -44,7 +32,6 @@ export async function GET(request: NextRequest) {
   const regionParam = searchParams.get('region');
   const countryParam = searchParams.get('country');
 
-  // 0. Live city autocomplete suggestions
   if (suggest !== null) {
     const trimmed = suggest.trim();
     if (trimmed.length < 2 || trimmed.length > 80) {
@@ -58,19 +45,14 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // 1. Explicitly labeled demo scenario
   if (demoId) {
     const scenario = getDemoScenarioById(demoId);
     if (!scenario) {
-      return NextResponse.json(
-        { error: 'Unknown demo scenario requested.', code: 'INVALID_DEMO' },
-        { status: 400 }
-      );
+      return apiError('Unknown demo scenario requested.', 'INVALID_DEMO', 400);
     }
     return NextResponse.json({ snapshot: scenario.snapshot }, { status: 200 });
   }
 
-  // 2. Coordinate lookup (Near Me reverse-geocoding OR exact autocomplete selection)
   if (latParam !== null && lonParam !== null) {
     const latitude = Number(latParam);
     const longitude = Number(lonParam);
@@ -82,10 +64,7 @@ export async function GET(request: NextRequest) {
       longitude < -180 ||
       longitude > 180
     ) {
-      return NextResponse.json(
-        { error: 'Invalid latitude or longitude coordinates.', code: 'INVALID_COORDS' },
-        { status: 400 }
-      );
+      return apiError('Invalid latitude or longitude coordinates.', 'INVALID_COORDS', 400);
     }
 
     try {
@@ -106,15 +85,18 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // 3. Manual city search
   const parsed = locationQuerySchema.safeParse({ city: city ?? '' });
   if (!parsed.success) {
-    return NextResponse.json(
+    return apiError(
+      parsed.error.issues[0]?.message ?? 'Please enter a valid city name.',
+      'INVALID_QUERY',
+      400,
       {
-        error: parsed.error.issues[0]?.message ?? 'Please enter a valid city name.',
-        code: 'INVALID_QUERY',
-      },
-      { status: 400 }
+        issues: parsed.error.issues.map((i) => ({
+          field: i.path.join('.') || 'city',
+          message: i.message,
+        })),
+      }
     );
   }
 
@@ -134,17 +116,12 @@ function handleServiceError(error: unknown) {
         : error.code === 'UPSTREAM_TIMEOUT'
           ? 504
           : 502;
-    return NextResponse.json(
-      { error: error.message, code: error.code },
-      { status }
-    );
+    return apiError(error.message, error.code, status);
   }
 
-  return NextResponse.json(
-    {
-      error: 'Unexpected error while fetching air-quality data.',
-      code: 'INTERNAL_ERROR',
-    },
-    { status: 500 }
+  return apiError(
+    'Unexpected error while fetching air-quality data.',
+    'INTERNAL_ERROR',
+    500
   );
 }

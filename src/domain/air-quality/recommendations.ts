@@ -1,8 +1,15 @@
-import { evaluateSafety, SAFETY_DISCLAIMER } from '@/domain/air-quality/thresholds';
+import { computeActionImpact, sumPlanImpactTotals } from '@/domain/air-quality/impact';
+import { STRATEGY_REGISTRY } from '@/domain/air-quality/strategies/registry';
+import {
+  evaluateSafety,
+  findCleanestAndWorstHours,
+  SAFETY_DISCLAIMER,
+} from '@/domain/air-quality/thresholds';
 import type {
   AirQualitySnapshot,
   DailyActionItem,
   FamilyProfile,
+  PlanImpactTotals,
   SafetyAssessment,
 } from '@/domain/air-quality/types';
 
@@ -19,6 +26,7 @@ export interface DailyPlan {
   dailyHeadline: string;
   safety: SafetyAssessment | null;
   actions: DailyActionItem[];
+  impactTotals: PlanImpactTotals;
   indoorAlternatives: FamilyAlternative[];
   disclaimer: string;
   mode: 'deterministic' | 'ai_enhanced';
@@ -84,7 +92,10 @@ const GENERAL_INDOOR_ALTERNATIVES: readonly FamilyAlternative[] = [
   },
 ];
 
-function buildUnavailablePlan(profile: FamilyProfile): DailyPlan {
+function buildUnavailablePlan(
+  snapshot: AirQualitySnapshot,
+  profile: FamilyProfile
+): DailyPlan {
   const actions: DailyActionItem[] = [
     {
       id: 'unavail-check-local',
@@ -111,6 +122,7 @@ function buildUnavailablePlan(profile: FamilyProfile): DailyPlan {
       category: 'indoor_hack',
       isLowCost: true,
       source: 'deterministic',
+      impact: computeActionImpact('indoor-no-smoke', snapshot, profile),
     },
     {
       id: 'unavail-wet-clean',
@@ -124,6 +136,7 @@ function buildUnavailablePlan(profile: FamilyProfile): DailyPlan {
       category: 'indoor_hack',
       isLowCost: true,
       source: 'deterministic',
+      impact: computeActionImpact('indoor-damp-clean', snapshot, profile),
     },
     {
       id: 'unavail-combine-errands',
@@ -137,6 +150,7 @@ function buildUnavailablePlan(profile: FamilyProfile): DailyPlan {
       category: 'low_emission',
       isLowCost: true,
       source: 'deterministic',
+      impact: computeActionImpact('low-emission-consolidate', snapshot, profile),
     },
   ];
 
@@ -145,6 +159,7 @@ function buildUnavailablePlan(profile: FamilyProfile): DailyPlan {
       'Live AQI is unavailable right now—follow these low-cost indoor precautions and verify local advisories before outdoor exercise.',
     safety: null,
     actions,
+    impactTotals: sumPlanImpactTotals(actions, profile),
     indoorAlternatives: profile.hasChildren
       ? [...FAMILY_INDOOR_ALTERNATIVES_WITH_KIDS]
       : [...GENERAL_INDOOR_ALTERNATIVES],
@@ -154,234 +169,28 @@ function buildUnavailablePlan(profile: FamilyProfile): DailyPlan {
 }
 
 /**
- * Generates a deterministic, safety-compliant daily action plan grounded in
- * current AQI thresholds and household context.
+ * Generates a deterministic, safety-compliant daily plan by evaluating every
+ * registered strategy against verified AQI safety thresholds and household context.
  */
 export function buildDeterministicPlan(
   snapshot: AirQualitySnapshot,
   profile: FamilyProfile
 ): DailyPlan {
   if (snapshot.aqi === null || snapshot.provenance === 'unavailable') {
-    return buildUnavailablePlan(profile);
+    return buildUnavailablePlan(snapshot, profile);
   }
 
   const safety = evaluateSafety(snapshot.aqi, profile, snapshot.hourlyForecast);
-  const actions: DailyActionItem[] = [];
+  const hours = findCleanestAndWorstHours(snapshot.hourlyForecast);
+  const context = {
+    snapshot,
+    profile,
+    safety,
+    hours,
+    isCommunity: profile.audienceMode === 'community',
+  };
 
-  // 1. Ventilation action (strictly context-aware — never blindly open windows)
-  if (safety.ventilation === 'open_freely') {
-    actions.push({
-      id: 'vent-open',
-      title: 'Refresh indoor rooms with cross-ventilation',
-      whyItMatters:
-        'Outdoor air is clean today, so opening opposite windows flushes out trapped indoor CO₂ and cooking particles.',
-      howToDoIt:
-        'Open windows on two opposite sides of the home for 20–30 minutes in the morning.',
-      whenLabel: 'Morning (8–10 AM)',
-      timeSlot: 'morning',
-      category: 'indoor_hack',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  } else if (safety.ventilation === 'brief_cross_ventilation') {
-    actions.push({
-      id: 'vent-brief',
-      title: 'Limit ventilation to a brief midday window',
-      whyItMatters:
-        'Winter pollution usually peaks in early morning and late evening due to cooler stagnant air near the ground.',
-      howToDoIt:
-        safety.saferWindowNote ??
-        'Keep windows closed during rush hours; open briefly for 10–15 minutes only during cleaner midday hours.',
-      whenLabel: 'Midday only',
-      timeSlot: 'midday',
-      category: 'indoor_hack',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  } else {
-    actions.push({
-      id: 'vent-close',
-      title: 'Keep exterior windows and balcony doors closed',
-      whyItMatters:
-        'Opening windows while outdoor AQI is unhealthy pulls fine PM2.5 particles directly into living areas and bedrooms.',
-      howToDoIt:
-        'Shut road-facing windows tightly and place a damp or rolled towel along leaky door gaps if haze is heavy.',
-      whenLabel: 'All day (especially morning & night)',
-      timeSlot: 'morning',
-      category: 'indoor_hack',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  }
-
-  // 2. Outdoor activity guidance tailored to children and outdoor routine
-  if (safety.outdoorKids === 'move_indoors') {
-    actions.push({
-      id: 'outdoor-shift-indoors',
-      title: profile.hasChildren
-        ? 'Swap outdoor park play for low-energy indoor activities'
-        : 'Move outdoor exercise indoors today',
-      whyItMatters:
-        'Running and active play increase breathing rate, drawing deeper volumes of polluted air into lungs—especially for children.',
-      howToDoIt:
-        profile.hasChildren
-          ? 'Pick one activity from the Indoor Alternatives below (like a living-room stretch circuit or story hour) during usual park time.'
-          : 'Switch outdoor jogging or cycling to gentle indoor stretching or mobility exercises.',
-      whenLabel:
-        profile.typicalOutdoorTime === 'morning'
-          ? 'Morning routine'
-          : profile.typicalOutdoorTime === 'evening'
-            ? 'Evening routine'
-            : 'Usual outdoor time',
-      timeSlot:
-        profile.typicalOutdoorTime === 'morning'
-          ? 'morning'
-          : profile.typicalOutdoorTime === 'afternoon'
-            ? 'midday'
-            : 'evening',
-      category: 'family_alternative',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  } else if (safety.outdoorKids === 'prefer_light_or_shorter') {
-    actions.push({
-      id: 'outdoor-shorten',
-      title: 'Keep outdoor play shorter and away from busy roads',
-      whyItMatters:
-        'Sensitive family members can experience throat or eye irritation during extended vigorous activity at moderate-to-elevated AQI.',
-      howToDoIt:
-        'Cap active outdoor time to 20–30 minutes in a tree-lined park or courtyard rather than sidewalks next to idling traffic.',
-      whenLabel: 'Midday / early afternoon',
-      timeSlot: 'midday',
-      category: 'outdoor',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  } else {
-    actions.push({
-      id: 'outdoor-enjoy',
-      title: profile.hasChildren
-        ? 'Make time for outdoor park play while air is clear'
-        : 'Take advantage of clean air for outdoor movement',
-      whyItMatters:
-        'Clean winter air days are ideal for sunlight, active play, and safe outdoor exercise.',
-      howToDoIt:
-        'Head to a local park or quiet residential street away from main arterial traffic.',
-      whenLabel: 'Morning or afternoon',
-      timeSlot: profile.typicalOutdoorTime === 'morning' ? 'morning' : 'midday',
-      category: 'outdoor',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  }
-
-  // 3. Indoor air hacks (affordable first; optional purifier advice if available)
-  actions.push({
-    id: 'indoor-no-smoke',
-    title: 'Pause incense, candles, and smoky indoor cooking',
-    whyItMatters:
-      'Burning incense sticks, mosquito coils, or high-smoke frying adds concentrated indoor PM2.5 right where your family breathes.',
-    howToDoIt:
-      'Use pot lids, switch on the kitchen exhaust hood while cooking, and choose steaming or simmering over deep-frying today.',
-    whenLabel: 'Meal times & evening',
-    timeSlot: 'evening',
-    category: 'indoor_hack',
-    isLowCost: true,
-    source: 'deterministic',
-  });
-
-  if (safety.severityLevel >= 3) {
-    actions.push({
-      id: 'indoor-damp-clean',
-      title: 'Damp-mop floors instead of dry sweeping',
-      whyItMatters:
-        'Dry brooms stir settled soot and dust back into the air for hours, especially at child height.',
-      howToDoIt:
-        'Use a wrung-out damp mop on floors and a damp cloth on bedroom surfaces; leave outdoor shoes near the entrance.',
-      whenLabel: 'Afternoon tidy-up',
-      timeSlot: 'midday',
-      category: 'indoor_hack',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  }
-
-  if (profile.hasAirPurifier && safety.severityLevel >= 3) {
-    actions.push({
-      id: 'indoor-purifier-bedroom',
-      title: 'Pre-clean the bedroom with your air purifier before bedtime',
-      whyItMatters:
-        'Running filtration in a closed sleeping room gives your family 7–9 hours of lower-exposure recovery overnight.',
-      howToDoIt:
-        'Close bedroom doors and windows 60 minutes before bed, run the purifier on medium/high, and verify the pre-filter is free of dust.',
-      whenLabel: '1 hour before bedtime',
-      timeSlot: 'evening',
-      category: 'indoor_hack',
-      isLowCost: false,
-      source: 'deterministic',
-    });
-  } else if (!profile.hasAirPurifier && safety.severityLevel >= 4) {
-    actions.push({
-      id: 'indoor-clean-room',
-      title: 'Create a low-dust "clean bedroom" without extra gear',
-      whyItMatters:
-        'You do not need an expensive purifier to lower overnight exposure—reducing infiltration and indoor particles makes a real difference.',
-      howToDoIt:
-        'Keep one bedroom closed all afternoon, skip room sprays or agarbatti, wipe dust with a damp cloth, and change out of outdoor clothes upon returning home.',
-      whenLabel: 'Before evening',
-      timeSlot: 'evening',
-      category: 'indoor_hack',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  }
-
-  // 4. Low-emission routine (balanced strictly with health safety)
-  if (safety.lowEmissionMobility === 'walk_or_cycle_safe') {
-    actions.push({
-      id: 'low-emission-walk',
-      title: 'Walk or cycle for short neighborhood errands',
-      whyItMatters:
-        'Short car or scooter trips produce disproportionately high cold-engine emissions; today’s clean air makes active travel safe.',
-      howToDoIt:
-        'Pick side streets over main roads for errands under 2 km and carry a reusable bag.',
-      whenLabel: 'Daytime errands',
-      timeSlot: 'midday',
-      category: 'low_emission',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  } else if (safety.lowEmissionMobility === 'short_walk_or_transit') {
-    actions.push({
-      id: 'low-emission-transit',
-      title: 'Choose public transit or bundle errands off-peak',
-      whyItMatters:
-        'Combining trips cuts local exhaust emissions while limiting how long you spend beside heavy traffic.',
-      howToDoIt:
-        profile.primaryCommute === 'car_two_wheeler'
-          ? 'Group errands into one midday loop, keep car ventilation on recirculate in traffic, and switch off your engine at long signals.'
-          : 'Use metro/bus for longer trips and avoid walking alongside congested main roads during rush hour.',
-      whenLabel: 'Commute & errands',
-      timeSlot: 'midday',
-      category: 'low_emission',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  } else {
-    actions.push({
-      id: 'low-emission-consolidate',
-      title: 'Skip non-essential trips and avoid vehicle idling',
-      whyItMatters:
-        'Outdoor walking or cycling is unsafe in heavy pollution, so the healthiest low-emission move today is reducing trips altogether.',
-      howToDoIt:
-        'Postpone optional errands, carpool or use closed-window transit only when necessary, and never idle parked vehicles near school gates or homes.',
-      whenLabel: 'Throughout the day',
-      timeSlot: 'anytime',
-      category: 'low_emission',
-      isLowCost: true,
-      source: 'deterministic',
-    });
-  }
+  const actions = STRATEGY_REGISTRY.flatMap((strategy) => strategy.apply(context));
 
   const indoorAlternatives =
     safety.outdoorKids === 'move_indoors' || safety.outdoorGeneral === 'move_indoors'
@@ -394,6 +203,7 @@ export function buildDeterministicPlan(
     dailyHeadline: safety.summary,
     safety,
     actions,
+    impactTotals: sumPlanImpactTotals(actions, profile),
     indoorAlternatives,
     disclaimer: SAFETY_DISCLAIMER,
     mode: 'deterministic',

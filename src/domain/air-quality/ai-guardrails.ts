@@ -7,6 +7,7 @@ import type {
   FamilyProfile,
   SafetyAssessment,
 } from '@/domain/air-quality/types';
+import { verifyNumberFirewall } from '@/domain/air-quality/number-firewall';
 
 export const snapshotPayloadSchema = z.object({
   location: z.object({
@@ -133,12 +134,14 @@ export function checkTextAgainstSafety(
 }
 
 /**
- * Validates raw JSON from the LLM for daily plan enhancement and strips/rejects
- * any action that violates deterministic safety constraints.
+ * Validates raw JSON from the LLM for daily plan enhancement, enforces the
+ * server-side number firewall against computed facts, and strips any action
+ * that violates deterministic safety constraints.
  */
 export function validateAndFilterAiPlan(
   rawJson: unknown,
-  safety: SafetyAssessment | null
+  safety: SafetyAssessment | null,
+  allowedFacts?: unknown
 ): { dailyHeadline: string; actions: DailyActionItem[] } | null {
   const parsed = aiPlanResponseSchema.safeParse(rawJson);
   if (!parsed.success) {
@@ -149,15 +152,26 @@ export function validateAndFilterAiPlan(
     return null;
   }
 
+  if (allowedFacts !== undefined) {
+    const headlineCheck = verifyNumberFirewall(parsed.data.dailyHeadline, allowedFacts);
+    if (!headlineCheck.passed) {
+      return null;
+    }
+  }
+
   const safeActions: DailyActionItem[] = [];
   for (const item of parsed.data.actions) {
     const combined = `${item.title}. ${item.whyItMatters}. ${item.howToDoIt}`;
-    if (!checkTextAgainstSafety(combined, safety)) {
-      safeActions.push({
-        ...item,
-        source: 'ai_personalized',
-      });
+    if (checkTextAgainstSafety(combined, safety)) {
+      continue;
     }
+    if (allowedFacts !== undefined && !verifyNumberFirewall(combined, allowedFacts).passed) {
+      continue;
+    }
+    safeActions.push({
+      ...item,
+      source: 'ai_personalized',
+    });
   }
 
   if (safeActions.length < 3) {

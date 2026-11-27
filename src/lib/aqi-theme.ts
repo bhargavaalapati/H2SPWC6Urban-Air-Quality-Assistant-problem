@@ -13,8 +13,23 @@ export interface AqiVisualTheme {
   badgeBg: string;
   badgeText: string;
   border: string;
+  symbol: string;
   meterPercent: number;
 }
+
+/**
+ * Verified color token pairs used across Light & Dark themes (tested against WCAG 2.2 AA).
+ */
+export const THEME_CONTRAST_PAIRS = [
+  { name: 'Light primary text on canvas', fg: '#18221f', bg: '#f6f7f4', minRatio: 4.5 },
+  { name: 'Light primary text on card', fg: '#0f172a', bg: '#ffffff', minRatio: 4.5 },
+  { name: 'Light secondary text on card', fg: '#475569', bg: '#ffffff', minRatio: 4.5 },
+  { name: 'Light forest button text', fg: '#ffffff', bg: '#1f5c4d', minRatio: 4.5 },
+  { name: 'Dark primary text on canvas', fg: '#f1f5f9', bg: '#0b1110', minRatio: 4.5 },
+  { name: 'Dark primary text on card', fg: '#ffffff', bg: '#0f172a', minRatio: 4.5 },
+  { name: 'Dark secondary text on card', fg: '#cbd5e1', bg: '#0f172a', minRatio: 4.5 },
+  { name: 'Dark emerald button text', fg: '#ffffff', bg: '#047857', minRatio: 4.5 },
+] as const;
 
 export function getAqiTheme(
   category: AqiCategory | null,
@@ -32,6 +47,7 @@ export function getAqiTheme(
         badgeBg: 'bg-emerald-100 dark:bg-emerald-900/60',
         badgeText: 'text-emerald-900 dark:text-emerald-200',
         border: 'border-emerald-200/80 dark:border-emerald-800/60',
+        symbol: '●',
         meterPercent: clamped,
       };
     case 'moderate':
@@ -42,6 +58,7 @@ export function getAqiTheme(
         badgeBg: 'bg-amber-100 dark:bg-amber-900/60',
         badgeText: 'text-amber-950 dark:text-amber-200',
         border: 'border-amber-200/80 dark:border-amber-800/60',
+        symbol: '◐',
         meterPercent: clamped,
       };
     case 'unhealthy_sensitive':
@@ -52,6 +69,7 @@ export function getAqiTheme(
         badgeBg: 'bg-orange-100 dark:bg-orange-900/60',
         badgeText: 'text-orange-950 dark:text-orange-200',
         border: 'border-orange-200/80 dark:border-orange-800/60',
+        symbol: '▲',
         meterPercent: clamped,
       };
     case 'unhealthy':
@@ -62,6 +80,7 @@ export function getAqiTheme(
         badgeBg: 'bg-rose-100 dark:bg-rose-900/60',
         badgeText: 'text-rose-950 dark:text-rose-200',
         border: 'border-rose-200/80 dark:border-rose-800/60',
+        symbol: '◆',
         meterPercent: clamped,
       };
     case 'very_unhealthy':
@@ -72,6 +91,7 @@ export function getAqiTheme(
         badgeBg: 'bg-purple-100 dark:bg-purple-900/60',
         badgeText: 'text-purple-950 dark:text-purple-200',
         border: 'border-purple-200/80 dark:border-purple-800/60',
+        symbol: '⬢',
         meterPercent: clamped,
       };
     case 'hazardous':
@@ -82,6 +102,7 @@ export function getAqiTheme(
         badgeBg: 'bg-red-100 dark:bg-red-900/60',
         badgeText: 'text-red-950 dark:text-red-200',
         border: 'border-red-300/80 dark:border-red-800/70',
+        symbol: '✖',
         meterPercent: clamped,
       };
     default:
@@ -92,6 +113,7 @@ export function getAqiTheme(
         badgeBg: 'bg-slate-100 dark:bg-slate-800',
         badgeText: 'text-slate-800 dark:text-slate-200',
         border: 'border-slate-200 dark:border-slate-800',
+        symbol: '?',
         meterPercent: 0,
       };
   }
@@ -189,6 +211,12 @@ export function getActionCategoryMeta(category: ActionCategory): {
         label: 'Low-Emission Habit',
         classes:
           'bg-emerald-50 text-emerald-900 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800/80',
+      };
+    case 'sustainable_alternative':
+      return {
+        label: 'Sustainable Alternative',
+        classes:
+          'bg-lime-50 text-lime-900 border-lime-200/80 dark:bg-lime-950/60 dark:text-lime-200 dark:border-lime-800/80',
       };
     case 'family_alternative':
       return {

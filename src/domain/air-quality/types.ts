@@ -10,6 +10,12 @@ export type AqiCategory =
 
 export type SensitivityLevel = 'standard' | 'elevated';
 
+export type AudienceMode = 'household' | 'community';
+
+export type CommunityType = 'rwa' | 'school' | 'neighbourhood';
+
+export type CookingFuelType = 'lpg_induction' | 'mixed_or_solid';
+
 export type VentilationGuidance =
   | 'open_freely'
   | 'brief_cross_ventilation'
@@ -37,7 +43,7 @@ export interface PollutantReadings {
   pm25: number | null; // µg/m³
   pm10: number | null; // µg/m³
   no2?: number | null; // µg/m³
-  o3?: number | null;  // µg/m³
+  o3?: number | null; // µg/m³
 }
 
 export interface HourlyAqiPoint {
@@ -58,13 +64,41 @@ export interface AirQualitySnapshot {
 }
 
 export interface FamilyProfile {
+  audienceMode: AudienceMode;
   householdSize: number;
+  communityType: CommunityType;
+  communitySize: number;
   hasChildren: boolean;
   hasOlderAdults: boolean;
   sensitivity: SensitivityLevel;
   hasAirPurifier: boolean;
+  cookingFuel: CookingFuelType;
+  openWasteBurningNearby: boolean;
   typicalOutdoorTime: 'morning' | 'afternoon' | 'evening' | 'flexible';
   primaryCommute: 'walk_cycle' | 'public_transit' | 'car_two_wheeler' | 'work_from_home';
+}
+
+export interface ImpactFactorCitation {
+  label: string;
+  value: string;
+  kind: 'published_factor' | 'assumption';
+  source: string;
+}
+
+export interface ImpactBreakdown {
+  pm25AvoidedUgPerDay: number;
+  co2eSavedKgPerWeek: number;
+  pm25EmissionsPreventedGPerWeek: number;
+  formulaSummary: string;
+  factors: ImpactFactorCitation[];
+}
+
+export interface PlanImpactTotals {
+  pm25AvoidedUgPerDay: number;
+  co2eSavedKgPerWeek: number;
+  pm25EmissionsPreventedGPerWeek: number;
+  peopleCovered: number;
+  audienceLabel: string;
 }
 
 export interface SafetyAssessment {
@@ -81,7 +115,13 @@ export interface SafetyAssessment {
 }
 
 export type ActionTimeSlot = 'morning' | 'midday' | 'evening' | 'anytime';
-export type ActionCategory = 'outdoor' | 'indoor_hack' | 'low_emission' | 'family_alternative';
+
+export type ActionCategory =
+  | 'outdoor'
+  | 'indoor_hack'
+  | 'low_emission'
+  | 'sustainable_alternative'
+  | 'family_alternative';
 
 export interface DailyActionItem {
   id: string;
@@ -93,6 +133,8 @@ export interface DailyActionItem {
   category: ActionCategory;
   isLowCost: boolean;
   source: 'deterministic' | 'ai_personalized';
+  impact?: ImpactBreakdown;
+  calendarUrl?: string;
 }
 
 export interface DemoScenario {

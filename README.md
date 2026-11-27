@@ -1,12 +1,10 @@
 # AirNest — Urban Air Quality Assistant for Families
 
-> **PromptWars Virtual Challenge · Challenge 06**
->
+> **PromptWars Virtual Challenge · Challenge 06**  
 > *Don't just tell families how polluted the air is. Tell them what they can realistically do about it today.*
 
-
- <p align="center">
-  <img src="https://img.shields.io/badge/PromptWars-Virtual%20Challenge%2006-0f766e?style=for-the-badge" alt="PromptWars Challenge 06" />
+<p align="center">
+  <img src="https://img.shields.io/badge/PromptWars-Virtual%20Challenge%2006-0f766e?style=for-the-badge" alt="PromptWars Virtual Challenge 06" />
   <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js 15" />
   <img src="https://img.shields.io/badge/React-19-149eca?style=for-the-badge&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-Strict-3178c6?style=for-the-badge&logo=typescript" alt="Strict TypeScript" />
@@ -17,27 +15,28 @@
   <img src="https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square" alt="Safety first" />
   <img src="https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square" alt="Grounded AI" />
   <img src="https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square" alt="No signup required" />
+  <img src="https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square" alt="Safety first" />
+  <img src="https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square" alt="Grounded AI" />
+  <img src="https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square" alt="No signup required" />
 </p>
 
 ---
 
 ## 🌿 Overview
 
-Winter pollution affects how families commute, exercise, ventilate their homes, and plan outdoor activities. Conventional air-quality dashboards often present AQI numbers and pollutant charts without explaining what households should actually do with that information.
+Winter air pollution affects how families commute, exercise, ventilate their homes and plan outdoor activities. Many air-quality dashboards display AQI values and pollutant charts but leave people unsure about what to do next.
 
-**AirNest** bridges that gap.
+**AirNest turns environmental information into practical, household-level decisions.** It combines air-quality data, deterministic safety rules and family preferences to help users plan ventilation, indoor activities, commuting and everyday routines.
 
-It transforms environmental conditions and household preferences into practical daily decisions — from ventilation timing and indoor pollution reduction to safer activity planning and low-emission routines.
+AirNest is designed to help families answer questions such as:
 
-Rather than simply reporting pollution, AirNest helps families understand:
-
-- Is it a good time for children to play outdoors?
+- Is it a suitable time for children or older adults to spend time outdoors?
 - Should we open our windows right now?
-- How can we reduce indoor pollution without expensive equipment?
-- What can we do instead of outdoor activities?
-- How can we adjust today's commute or routine?
+- What practical steps can reduce indoor pollution?
+- What can we do indoors when outdoor conditions are unfavorable?
+- How can we adapt today's commute or routine?
 
-### Our guiding principle
+### Guiding principle
 
 > **Don't just tell families how polluted the air is. Tell them what they can realistically do about it today.**
 
@@ -45,29 +44,86 @@ Rather than simply reporting pollution, AirNest helps families understand:
 
 ## ✨ Features
 
-| Feature                             | Description                                                                                              |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| 🌍 **Air Quality Dashboard**        | AQI, pollutant concentrations, categories, hourly projections and data timestamps.                       |
-| 🔎 **Data Provenance**              | Distinguishes live data, delayed readings, simulated scenarios and unavailable data.                     |
-| 🏙️ **City Explorer**               | City search, location selection and optional Near Me lookup.                                             |
-| 👨‍👩‍👧 **Family Personalization** | Household size, children, older adults, sensitivities, purifier ownership, commute mode and preferences. |
-| 📅 **Daily Action Plan**            | Practical morning, midday and evening recommendations adapted to environmental conditions.               |
-| 🪟 **Smart Ventilation Guidance**   | Context-aware advice for window opening, ventilation and reducing outdoor pollution entry.               |
-| 🏠 **Indoor Air Hacks**             | Affordable actions to reduce indoor smoke, dust, combustion sources and pollution exposure.              |
-| 🚶 **Low-Emission Routines**        | Cleaner travel choices without encouraging outdoor exercise during unsafe pollution.                     |
-| ☑️ **Action Checklist**             | Categorized actions, completion tracking, progress and locally persisted daily state.                    |
-| 🤖 **AI Air Assistant**             | Grounded household Q&A with contextual recommendations and deterministic safety guardrails.              |
-| 🧒 **Family Activity Alternatives** | Low-cost indoor alternatives when outdoor conditions are unfavorable.                                    |
-| 📚 **Pollution Education**          | Explain AQI, PM2.5, PM10, winter inversions and indoor/outdoor pollution.                                |
-| 🌗 **Light & Dark Mode**            | Theme-aware interface with accessible contrast and AQI visualization.                                    |
-| 📱 **Responsive Experience**        | Adaptive layouts for mobile, tablet and desktop.                                                         |
-| 🛡️ **Safety & Resilience**         | Validation, fallback responses, error handling, loading states and offline awareness.                    |
+| Feature | What it does |
+| --- | --- |
+| 🌍 **Air-quality dashboard** | Presents AQI, pollutant concentrations, categories, hourly information and reading timestamps. |
+| 🔎 **Data provenance** | Distinguishes live data, delayed readings, demo scenarios and unavailable data. |
+| 🏙️ **City and location explorer** | Supports city search, location selection and the available location lookup flow. |
+| 👨‍👩‍👧 **Household personalization** | Uses household and family context, sensitivities, purifier ownership, commute mode and preferences. |
+| 📅 **Daily action plan** | Generates practical recommendations for different parts of the day. |
+| 🪟 **Ventilation guidance** | Uses air-quality context to guide window opening and ventilation decisions. |
+| 🏠 **Indoor-air suggestions** | Offers practical ways to reduce indoor smoke, dust and combustion-related pollution. |
+| 🚶 **Low-emission routines** | Suggests cleaner travel choices without encouraging outdoor activity during unsafe conditions. |
+| ☑️ **Action checklist** | Lets users track recommendations and retain checklist state locally. |
+| 🤖 **AI air assistant** | Answers household questions using validated environmental and household context, with deterministic safety guardrails. |
+| 🧒 **Indoor activity alternatives** | Suggests alternatives when outdoor conditions are unfavorable. |
+| 📚 **Pollution education** | Explains AQI, PM2.5, PM10, winter inversions and indoor/outdoor pollution. |
+| 🌗 **Light and dark themes** | Provides theme-aware layouts and AQI visualizations. |
+| 📱 **Responsive interface** | Adapts the dashboard for mobile, tablet and desktop screens. |
+
+---
+
+## 🚀 Current Implementation — Four Completed Batches
+
+The current deployed build incorporates the following four implementation batches.
+
+### 1. Foundation and safety engine
+
+- Added TypeScript domain types and Zod schemas for structured data validation.
+- Implemented deterministic AQI thresholds and safety-critical baseline decisions.
+- Added automated unit tests for core domain and safety logic.
+- Kept safety-critical interpretation independent of generative AI.
+
+### 2. Live data and planning engine
+
+- Integrated the environmental data client and location-aware data flow.
+- Implemented a deterministic daily recommendation engine.
+- Added the rate-limited `GET /api/air-quality` route.
+- Kept demo and unavailable-data states distinguishable from live readings.
+
+### 3. AI layer and hardened guardrails
+
+- Added server-side `POST /api/plan` and `POST /api/assistant` routes.
+- Used structured JSON responses with Zod validation.
+- Added server-side Gemini API-key rotation and automatic failover.
+- Applied deterministic post-generation guardrails so AI output cannot override verified AQI, ventilation or health-safety constraints.
+- Retained deterministic fallback guidance when the AI path is unavailable or returns unusable output.
+
+### 4. Core experience and personalization
+
+- Delivered the interactive AirNest dashboard with location and demo-scenario switching.
+- Added household/family profile personalization.
+- Added interactive daily action checklists.
+- Connected environmental context, household preferences and recommendations in the main user experience.
+
+---
+
+## 📸 Product Experience
+| Air-quality dashboard | Personalized action plan |
+| --- | --- |
+| ![AirNest dashboard](docs/screenshots/dashboard.png) | ![Daily action plan](docs/screenshots/action-plan.png) |
+
+| AI air assistant | Household checklist |
+| --- | --- |
+| ![AI assistant](docs/screenshots/assistant.png) | ![Action checklist](docs/screenshots/checklist.png) |
+
+
+<!-- Example layout — replace the paths with real screenshots before publishing.
+
+| Air-quality dashboard | Personalized action plan |
+| --- | --- |
+| ![AirNest dashboard](docs/screenshots/dashboard.png) | ![Daily action plan](docs/screenshots/action-plan.png) |
+
+| AI air assistant | Household checklist |
+| --- | --- |
+| ![AI assistant](docs/screenshots/assistant.png) | ![Action checklist](docs/screenshots/checklist.png) |
+-->
 
 ---
 
 ## 🏗️ System Architecture
 
-AirNest separates environmental data, deterministic safety logic, AI orchestration, application services and UI components to keep safety-critical decisions predictable and maintainable.
+AirNest separates environmental data, deterministic safety logic, AI orchestration, application services and UI components. This separation keeps safety-critical decisions predictable while allowing AI to personalize explanations and recommendations.
 
 ```mermaid
 flowchart TD
@@ -77,33 +133,43 @@ flowchart TD
     B --> D[Household Profile]
     B --> E[Daily Action Plan]
     B --> F[AI Air Assistant]
-    B --> G[Checklist & Education]
+    B --> G[Checklist and Education]
 
-    C --> H[Air Quality API Routes]
-    E --> I[Recommendation Engine]
+    C --> H[Air Quality API Route]
+    E --> I[Deterministic Recommendation Engine]
     F --> J[AI Assistant API]
 
     H --> K[Open-Meteo API]
-    H --> L[Geocoding & Location Services]
+    H --> L[Geocoding and Location Services]
 
     I --> M[Deterministic Safety Engine]
-    J --> N[Gemini AI Service]
+    J --> N[Gemini Service]
     N --> O[Structured Response Validation]
-    O --> P[AI Guardrails]
+    O --> P[Post-generation AI Guardrails]
 
     M --> Q[Verified Safety Constraints]
     P --> Q
-
     Q --> R[Safe Family Guidance]
     R --> B
 
-    D --> S[LocalStorage]
+    D --> S[Local Storage]
     G --> S
 ```
+
+### Architectural principles
+
+- **Domain-first design:** AQI interpretation and recommendation rules stay separate from UI rendering.
+- **Separation of concerns:** Data clients, API routes, AI services, safety rules, persistence and presentation have distinct responsibilities.
+- **Server-side secrets:** Provider keys are handled on the server and must not be exposed through `NEXT_PUBLIC_` variables.
+- **Validated boundaries:** External data, user input and AI responses are validated before use.
+- **Graceful degradation:** Core guidance remains available through deterministic logic when generative AI is unavailable.
+- **Minimal infrastructure:** The application does not require a user account system or a mandatory external database for its core experience.
 
 ---
 
 ## 🧩 Project Structure
+
+The following is a high-level view of the current application structure. Individual files may evolve as the project is refactored.
 
 ```text
 src/
@@ -117,16 +183,13 @@ src/
 │       ├── demo-scenarios.ts
 │       ├── education.ts
 │       └── __tests__/
-│
 ├── services/
 │   ├── open-meteo.ts
 │   └── ai-assistant.ts
-│
 ├── lib/
 │   ├── rate-limit.ts
 │   ├── aqi-theme.ts
 │   └── storage.ts
-│
 ├── app/
 │   ├── api/
 │   │   ├── air-quality/
@@ -135,217 +198,200 @@ src/
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
-│
 └── components/
     └── Modular UI components
 ```
 
-### Architectural principles
-
-- **Domain-first design** — AQI rules and recommendation logic remain independent of UI frameworks.
-- **Separation of concerns** — API integrations, AI services, safety rules, persistence and presentation have distinct responsibilities.
-- **Server-side secrets** — API keys never need to be exposed to browser code.
-- **Validated boundaries** — external data, user input and AI responses are validated.
-- **Graceful degradation** — core guidance remains available without generative AI.
-- **Minimal infrastructure** — no mandatory database, account system or heavyweight backend.
-
 ---
 
-## 🌫️ Air Quality & Environmental Data
+## 🌫️ Air-quality and Environmental Data
 
-### Environmental data pipeline
+### Data pipeline
 
 ```mermaid
 flowchart LR
-    A[User selects location] --> B[Fetch environmental data]
+    A[User selects a location] --> B[Request environmental data]
     B --> C{Data available?}
-    C -->|Yes| D[Validate & Normalize]
-    C -->|No| E[Demo / Unavailable state]
-    D --> F[Calculate AQI interpretation]
-    F --> G[Apply Safety Rules]
-    G --> H[Generate Recommendations]
-    H --> I[Dashboard & Daily Plan]
+    C -->|Yes| D[Validate and normalize]
+    C -->|No| E[Demo or unavailable state]
+    D --> F[Interpret AQI]
+    F --> G[Apply deterministic safety rules]
+    G --> H[Generate recommendations]
+    H --> I[Dashboard and daily plan]
 ```
 
 ### Supported information
 
 - US AQI
-- PM2.5
-- PM10
-- Nitrogen dioxide — NO₂
-- Ozone — O₃
-- Hourly environmental projections
-- Location and reading timestamp
+- PM2.5 and PM10
+- Nitrogen dioxide (NO₂)
+- Ozone (O₃)
+- Hourly environmental information where provided by the data source
+- Selected location and reading timestamp
 - AQI category and practical interpretation
 
 ### Data transparency
 
-Every environmental reading is accompanied by a provenance state:
+AirNest distinguishes the source and availability of readings instead of presenting every value as live data.
 
-| Status                 | Meaning                                                     |
-| ---------------------- | ----------------------------------------------------------- |
-| 🟢 **Live Data**       | Successfully retrieved environmental data.                  |
-| 🟡 **Delayed Reading** | Data is available but may not represent current conditions. |
-| 🔵 **Demo Scenario**   | Simulated conditions for demonstration purposes.            |
-| ⚪ **Data Unavailable** | No reliable reading is currently available.                 |
+| State | Meaning |
+| --- | --- |
+| 🟢 **Live data** | Environmental data was successfully retrieved from the configured source. |
+| 🟡 **Delayed reading** | Data is available but may not represent current conditions. |
+| 🔵 **Demo scenario** | Simulated conditions are being used for demonstration. |
+| ⚪ **Unavailable** | A reliable reading is not currently available. |
 
-AirNest never presents simulated data as a live measurement.
+**Simulated demo values must not be interpreted as live measurements.**
 
 ---
 
-## 🧠 Safety-First AI Architecture
+## 🧠 Safety-first AI Architecture
 
-AirNest uses a **deterministic safety engine combined with bounded generative AI**.
+AirNest combines a **deterministic safety engine** with **bounded generative AI**. AI helps personalize language and household guidance; it does not establish the application's safety-critical AQI thresholds.
 
-Generative AI improves personalization, explanations and conversational guidance — but it does not decide safety-critical thresholds.
+### Deterministic safety engine
 
-### 1. Deterministic safety engine
-
-The domain engine establishes validated air-quality categories and safety constraints, including:
+The domain layer establishes validated AQI categories and safety constraints for areas such as:
 
 - Ventilation guidance.
 - Outdoor activity recommendations.
 - Child and sensitive-household considerations.
-- Safer activity timing when supported by available data.
-- Low-emission mobility alternatives.
-- Severe pollution advisories.
+- Activity timing when supported by available environmental data.
+- Lower-emission mobility alternatives.
+- Severe-pollution advisories.
 
-### 2. Context-grounded AI
+### Context-grounded AI
 
-The AI assistant receives relevant validated context:
+The AI routes receive relevant validated context, including the available environmental snapshot, data provenance, household preferences and deterministic safety instructions.
 
-- Current environmental snapshot.
-- Data provenance.
-- Household preferences.
-- Activity constraints.
-- Deterministic safety instructions.
+### Validation and post-generation checks
 
-### 3. Structured output validation
-
-AI-generated responses are validated using Zod schemas before they are used by the application.
-
-### 4. Post-generation guardrails
-
-Responses that violate safety constraints are rejected or replaced with deterministic fallback guidance.
+1. The application prepares validated AQI and household context.
+2. The deterministic engine establishes applicable safety constraints.
+3. Gemini generates a structured response for the relevant workflow.
+4. Zod validates the generated response.
+5. Post-generation guardrails check the response against deterministic constraints.
+6. Unsafe or invalid output is rejected or replaced with deterministic fallback guidance.
 
 ```mermaid
 flowchart TD
-    A[Verified AQI + Family Context] --> B[Deterministic Safety Engine]
+    A[Verified AQI and Household Context] --> B[Deterministic Safety Engine]
     B --> C[Safety Constraints]
     B --> D[AI Context Assembly]
     D --> E[Gemini Generation]
-    E --> F[Zod Validation]
-    F --> G[Post-Generation Guardrails]
-    G --> H{Safe response?}
-    H -->|Yes| I[Display AI Guidance]
-    H -->|No| J[Deterministic Fallback]
+    E --> F[Zod Schema Validation]
+    F --> G[Post-generation Guardrails]
+    G --> H{Response passes checks?}
+    H -->|Yes| I[Display contextual guidance]
+    H -->|No| J[Deterministic fallback]
     J --> I
 ```
 
-### Safety principle
+> **AI may personalize the guidance. It must never override verified environmental data or deterministic safety rules.**
 
-> **AI may personalize the guidance. It must never override verified environmental data or safety rules.**
-
-AirNest is an environmental-awareness and lifestyle guidance tool — not a medical diagnostic service.
+AirNest is an environmental-awareness and lifestyle-guidance tool, not a medical diagnostic service.
 
 ---
 
 ## 🤖 Generative AI Integration
 
-### Service
+AirNest uses the **Google Gemini API** through the official `@google/genai` SDK. Gemini calls are made through server-side Next.js route handlers so provider credentials are not exposed to browser code.
 
-| Item      | Details                            |
-| --------- | ---------------------------------- |
-| Provider  | Google Gemini API                  |
-| SDK       | `@google/genai`                    |
-| Model     | Configurable using `GEMINI_MODEL`  |
+| Item | Implementation |
+| --- | --- |
+| Provider | Google Gemini API |
+| SDK | `@google/genai` |
+| Primary model | `gemini-3.8-flash` |
+| Fallback model | `gemini-2.5-flash` |
 | Execution | Server-side Next.js route handlers |
-| Output    | Structured, validated responses    |
-| Fallback  | Deterministic guidance             |
-| API key   | `GEMINI_API_KEY`                   |
+| Response format | Structured JSON validated with Zod |
+| Resilience | Server-side API-key rotation and automatic failover, with deterministic fallback guidance |
+| Credential | Server-side Gemini API key configuration |
+
+Model identifiers and availability can change. Refer to the [official Gemini API model documentation](https://ai.google.dev/gemini-api/docs/models) when changing model configuration.
 
 ### AI-powered workflows
 
-#### Daily action plan personalization
+#### Personalized daily plan
 
 **Endpoint:** `POST /api/plan`
 
-Personalizes a household's action plan headline and recommendations using household preferences and verified AQI constraints.
+Uses Gemini to personalize the daily plan using the household context and validated AQI constraints. Deterministic recommendation logic remains responsible for the underlying safety rules.
 
 #### Grounded conversational assistant
 
 **Endpoint:** `POST /api/assistant`
 
-Supports questions such as:
+Uses the available environmental snapshot, location context, household preferences and safety instructions to answer practical questions such as:
 
-- Is it safe for my children to play outside today?
+- Is it a suitable time for my children to play outside?
 - When should we ventilate our home?
-- How can I make our bedroom air cleaner tonight?
-- What can we do instead of visiting the park?
-- How can I reduce pollution exposure on my commute?
+- How can we make our indoor air cleaner tonight?
+- What can we do instead of going to the park?
+- How can we adapt our commute during poor air quality?
 
 ### Graceful fallback
 
-If Gemini is unavailable, rate-limited, unconfigured or returns invalid output:
+When Gemini is unavailable, rate-limited, unconfigured or returns invalid output:
 
-- Core application functionality remains available.
-- Safety guidance does not depend on the AI service.
-- Users receive deterministic recommendations.
-- AI availability is communicated honestly.
-
----
-
-## 🛡️ Security & Reliability
-
-| Area                 | Implementation                              |
-| -------------------- | ------------------------------------------- |
-| Type safety          | Strict TypeScript                           |
-| Input validation     | Zod schemas                                 |
-| AI output validation | Structured schema validation                |
-| API security         | Server-side processing and validation       |
-| Secrets              | Environment variables; never `NEXT_PUBLIC_` |
-| Rate limiting        | Per-IP / per-user request protection        |
-| Request resilience   | Timeout handling and graceful failures      |
-| Data caching         | TTL-based environmental data caching        |
-| HTTP protection      | Security headers                            |
-| Persistence          | Safe browser-side storage helpers           |
-| AI safety            | Context constraints and output guardrails   |
-| External data        | Validated and normalized before use         |
+- Core dashboard functionality remains available.
+- Deterministic safety guidance remains independent of AI availability.
+- The application can use fallback recommendations instead of relying on an unverified AI response.
+- AI availability should be communicated honestly to the user.
 
 ---
 
-## ♿ Accessibility
+## 🛡️ Security and Reliability
 
-AirNest aims to deliver an inclusive experience across devices and interaction methods.
+| Area | Current approach |
+| --- | --- |
+| Type safety | Strict TypeScript domain types |
+| Input and output validation | Zod schemas at application boundaries |
+| AI response safety | Structured response validation and deterministic post-generation guardrails |
+| API credentials | Server-side environment configuration; never use the `NEXT_PUBLIC_` prefix for secrets |
+| Gemini resilience | Server-side key rotation and automatic failover |
+| Request protection | Rate limiting on the air-quality API route |
+| External environmental data | Validation and normalization before downstream use |
+| Failure handling | Deterministic guidance and explicit unavailable/error states |
+| Client persistence | Local storage helpers for household preferences and checklist state |
 
-- Keyboard-accessible navigation and controls.
-- Semantic HTML.
-- Accessible labels and feedback.
-- Meaningful AQI color semantics without color-only communication.
-- High-contrast light and dark themes.
-- Reduced-motion support.
-- Responsive touch targets.
-- Loading, empty, error and completion states.
+Additional hardening work—such as formal response-header policy, explicit request-body size limits and expanded security auditing—is tracked separately and should not be considered complete until implemented and tested in the repository.
+
+---
+
+## ♿ Accessibility and Responsive Design
+
+AirNest is designed to support different screen sizes and interaction needs. The interface should be reviewed for:
+
+- Semantic page landmarks and clearly labelled navigation.
+- Keyboard-accessible links, controls and forms.
+- Visible focus states and appropriately sized touch targets.
+- Readable contrast in light and dark themes.
+- AQI communication that does not rely on color alone.
+- Clear loading, empty, error and completion states.
+- Reduced-motion preferences where applicable.
+
+A design checklist is not a substitute for an automated accessibility audit. Accessibility test coverage and WCAG 2.2 AA verification remain part of the planned quality work unless a passing test report is available.
 
 ---
 
 ## 🧰 Technology Stack
 
-| Technology                 | Purpose                                     |
-| -------------------------- | ------------------------------------------- |
-| Next.js 15                 | Full-stack framework and App Router         |
-| React 19                   | Component-based UI                          |
-| TypeScript                 | Strict typing and maintainability           |
-| Tailwind CSS v4            | Styling and responsive design               |
-| Lucide React               | Interface icons                             |
-| Zod                        | Runtime schema validation                   |
-| Open-Meteo Air Quality API | Environmental data                          |
-| Open-Meteo Geocoding API   | City search and coordinates                 |
-| BigDataCloud               | Reverse geocoding                           |
-| Google Gemini              | AI-powered personalized guidance            |
-| `@google/genai`            | Gemini SDK                                  |
-| localStorage               | Household profile and checklist persistence |
-| Vitest                     | Unit and service testing                    |
+| Technology / Service | Purpose |
+| --- | --- |
+| Next.js 15 | Full-stack framework and App Router |
+| React 19 | Component-based user interface |
+| TypeScript | Type safety and maintainability |
+| Tailwind CSS v4 | Styling and responsive layouts |
+| Lucide React | Interface icons |
+| Zod | Runtime schema validation |
+| Open-Meteo Air Quality API | Environmental data |
+| Open-Meteo Geocoding API | City search and coordinates |
+| BigDataCloud | Reverse geocoding, where used by the location flow |
+| Google Gemini API | AI-powered plan personalization and conversational guidance |
+| `@google/genai` | Official Gemini SDK |
+| `localStorage` | Household profile and checklist persistence |
+| Vitest | Unit and service testing |
 
 ---
 
@@ -353,16 +399,15 @@ AirNest aims to deliver an inclusive experience across devices and interaction m
 
 ### Prerequisites
 
-- Node.js compatible with Next.js 15
-- npm
-- Git
-- GitHub account (for repository workflow)
+- Node.js version supported by the project's Next.js 15 dependencies.
+- npm.
+- Git.
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/bhargavaalapati/H2SPWC6Urban-Air-Quality-Assistant-problem
-cd AirNest
+git clone https://github.com/bhargavaalapati/H2SPWC6Urban-Air-Quality-Assistant-problem.git
+cd H2SPWC6Urban-Air-Quality-Assistant-problem
 ```
 
 ### 2. Install dependencies
@@ -373,20 +418,28 @@ npm install
 
 ### 3. Configure environment variables
 
-Create your local environment file:
+Create a local environment file from the example file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Configure the optional Gemini API key:
+On Windows PowerShell, use:
 
-```env
-GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=your_supported_gemini_model
+```powershell
+Copy-Item .env.example .env.local
 ```
 
-> Gemini configuration is optional. The application should remain functional using deterministic fallback guidance.
+Configure the Gemini variables used by the application:
+
+```env
+GEMINI_API_KEY=your_server_side_gemini_api_key
+GEMINI_MODEL=gemini-3.8-flash
+```
+
+The application also uses `gemini-2.5-flash` as its fallback model in the current configuration. Keep all provider keys on the server; never commit real keys or expose them through `NEXT_PUBLIC_` variables. Check `.env.example` and the current implementation for the exact key-rotation configuration used by the project.
+
+Gemini configuration is optional for the deterministic portions of the application. Without a configured AI provider, AI-powered responses may fall back or be unavailable while core air-quality and safety functionality remains available.
 
 ### 4. Start the development server
 
@@ -394,162 +447,155 @@ GEMINI_MODEL=your_supported_gemini_model
 npm run dev
 ```
 
-Open [**http://localhost:3000**](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
 ## ⚙️ Environment Variables
 
-| Variable         | Required | Description                                |
-| ---------------- | -------- | ------------------------------------------ |
-| `GEMINI_API_KEY` | No       | Server-side Google Gemini API key.         |
-| `GEMINI_MODEL`   | No       | Overrides the configured default AI model. |
+| Variable | Required | Description |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | Optional for core deterministic features | Server-side Google Gemini API credential. |
+| `GEMINI_MODEL` | Optional | Overrides the configured primary Gemini model. |
 
-> Never expose provider keys using the `NEXT_PUBLIC_` prefix.
+The project may use additional server-side configuration for key rotation. Refer to `.env.example` and the implementation for the authoritative variable names. **Never commit secrets.**
 
 ---
 
-## 🧪 Validation & Testing
+## 🧪 Validation and Testing
 
-Run the following checks before submitting changes:
+Run the checks configured in the repository before creating a submission commit:
 
 ```bash
-# Strict TypeScript validation
+# TypeScript validation
 npm run typecheck
 
-# Unit, service, guardrail and API tests
+# Unit, service, domain and guardrail tests
 npm run test
 
-# Lint the codebase
+# Lint
 npm run lint
 
-# Production build verification
+# Production build
 npm run build
 ```
 
-### Test coverage areas
+### Existing test focus
 
 - AQI thresholds and classification.
-- Recommendation generation.
-- Ventilation and outdoor safety guardrails.
-- Household personalization.
-- AI output validation and fallback.
-- External data service behavior.
-- API validation and failure handling.
-- Checklist persistence and utility logic.
+- Deterministic recommendation generation.
+- Ventilation and outdoor-activity safety guardrails.
+- Household personalization logic.
+- AI response validation and fallback behavior.
+- Environmental data service behavior.
+- API input validation and failure handling.
+- Checklist and storage utilities.
 
-> Test badges and pass status should reflect actual CI results, not assumed results.
+Only report test, coverage, build or accessibility results that have actually been run and passed. A planned quality gate should not be represented as an existing passing check.
 
 ---
 
-## 🎬 Demo Scenarios
+## 🎬 Demo Scenarios and Judge Walkthrough
 
-AirNest includes predefined winter scenarios to demonstrate functionality without depending on API availability.
+AirNest includes predefined winter scenarios so the experience can be demonstrated without depending entirely on live API availability.
 
-| Scenario       | Description          |
-| -------------- | -------------------- |
-| 🇮🇳 New Delhi | Severe Winter Smog   |
-| 🇮🇳 Hyderabad | Hazy Winter Evening  |
-| 🇮🇳 Bengaluru | Crisp Morning Breeze |
+| Scenario | Description |
+| --- | --- |
+| 🇮🇳 New Delhi | Severe winter smog |
+| 🇮🇳 Hyderabad | Hazy winter evening |
+| 🇮🇳 Bengaluru | Crisp morning breeze |
 
-### Recommended judge walkthrough
+### Suggested walkthrough
 
-1. Open AirNest with the default demo scenario.
-2. Understand the AQI and pollutant readings.
-3. Switch between environmental scenarios.
+1. Open AirNest using the default demo scenario.
+2. Review the AQI, pollutant readings and data-provenance state.
+3. Switch between available location or demo scenarios.
 4. Add household preferences and family context.
-5. Explore the personalized daily action plan.
+5. Review the personalized daily action plan.
 6. Ask the AI assistant a practical household question.
-7. Complete action checklist items.
-8. Switch themes and explore the responsive interface.
+7. Interact with the daily action checklist.
+8. Review the responsive layout and theme options.
 
 ---
 
-## 📊 Development Roadmap
+## 🗺️ Development Roadmap
 
-The project follows a limited three-attempt strategy focused on meaningful improvements rather than superficial changes.
+### Current deployed build
 
-### Attempt 1 — Core Production MVP
+- [x] TypeScript domain foundation and Zod schemas.
+- [x] Deterministic AQI thresholds and baseline safety rules.
+- [x] Live environmental data integration and rate-limited air-quality route.
+- [x] Deterministic daily recommendation engine.
+- [x] Gemini-powered plan and assistant routes.
+- [x] Structured AI response validation and deterministic post-generation guardrails.
+- [x] Server-side Gemini key rotation and automatic failover.
+- [x] Location/demo switching and household personalization.
+- [x] Interactive daily action checklist.
+- [x] **Household and community modes:** Add a Household / Community (school or RWA) context switch, with relevant group-size and local pollution-source inputs.
+- [x] **Deterministic impact engine:** Calculate per-action and aggregate impact estimates for PM2.5 exposure avoided, CO₂e saved and PM2.5 emissions prevented. Label every calculation factor as a published factor or transparent assumption, and show the calculation method to users.
+- [x] **AI number firewall:** Restrict generated numerical claims to the active AQI snapshot, verified impact calculations or numbers supplied by the user.
+- [x] **Calendar reminders:** Add a zero-dependency Google Calendar link for recommendations with a supported time window.
+- [x] **Dashboard refactor:** Extract data and household-state hooks, and divide recommendation strategies and Gemini client/prompt responsibilities into focused modules.
+- [x] **Quality gates:** Add formatting and stricter lint rules, a health-check endpoint and a GitHub Actions workflow for typecheck, lint, tests and build.
+- [x] **Expanded testing:** Add coverage reporting and targeted tests for impact calculations, number validation, strategy selection, API health and UI interactions.
+- [x] **Accessibility verification:** Add DOM and accessibility tests for keyboard navigation, screen-reader announcements, non-color-only AQI status and light/dark states.
+- [x] **Security hardening:** Verify security headers, request content types and body-size limits, then review dependency audit results.
+- [x] **Traceable documentation:** Add focused problem-alignment, security, testing and accessibility documents that map requirements to implementation and tests.
 
-- [x] Environmental data integration.
-- [x] AQI classification and interpretation.
-- [x] Deterministic safety engine.
-- [x] Family personalization.
-- [x] Daily action recommendations.
-- [x] Indoor air guidance.
-- [x] Interactive checklist.
-- [x] AI assistant with fallback.
-- [x] Demo scenarios.
-- [x] Responsive interface.
-- [x] Security and validation foundations.
 
-### Attempt 2 — High-Impact Improvements
+### Later possibilities
 
-- [ ] Dedicated product landing page and guided entry.
-- [ ] English, Hindi and Telugu family support.
-- [ ] Multimodal home-air visual analysis.
-- [ ] Component-level accessibility testing.
-- [ ] Expanded interaction and UI test coverage.
-- [ ] Further UX and evaluation-driven improvements.
-
-### Attempt 3 — Advanced Agentic Capabilities
-
-- [ ] Tool-assisted environmental queries.
-- [ ] Clean-air timing discovery.
-- [ ] Indoor activity recommendations as callable tools.
-- [ ] Multi-city comparison using verified data.
-- [ ] Optional MCP integration, only if it adds meaningful value.
+- [ ] Tool-assisted environmental queries and clean-air timing discovery.
+- [ ] Indoor-activity recommendations exposed through callable tools.
+- [ ] Multi-city comparison based on verified data.
+- [ ] Optional MCP integration only where it adds measurable user value.
 - [ ] Final performance, accessibility, security and submission audit.
 
-### Scope decisions
+### Scope principles
 
-To protect reliability, maintainability and the challenge submission size:
-
-- No mandatory authentication.
-- No heavyweight external database.
-- No unnecessary multi-service backend.
-- No expensive infrastructure dependency.
-- AI is optional, not a core application failure point.
+- Keep the core experience usable without mandatory authentication.
+- Avoid introducing a heavyweight database or unnecessary backend services.
+- Keep AI optional and out of safety-critical threshold decisions.
+- Prefer transparent, testable calculations over unsupported impact claims.
+- Keep the repository and deployment lean; validate actual repository size and branch count before submission.
 
 ---
 
 ## 🎯 Challenge Alignment
 
-| Evaluation Area                 | AirNest Approach                                                        |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| **Problem Statement Alignment** | Converts AQI data into actionable family decisions.                     |
-| **Code Quality**                | Modular domain logic, strict typing and separation of concerns.         |
-| **Security**                    | Validated inputs, server-side secrets, rate limiting and AI guardrails. |
-| **Efficiency**                  | Lightweight architecture, caching and minimal infrastructure.           |
-| **Testing**                     | Domain tests, service tests, AI guardrail tests and API validation.     |
-| **Accessibility**               | Keyboard navigation, contrast, semantic UI and reduced-motion support.  |
-| **AI Value**                    | Grounded personalization and contextual conversational guidance.        |
-| **Practical Usability**         | No-signup demo, local household preferences and functional checklist.   |
+| Evaluation area | AirNest approach |
+| --- | --- |
+| **Problem alignment** | Converts air-quality information into practical family decisions. |
+| **Code quality** | Domain logic, strict typing, validation and separated application responsibilities. |
+| **Security** | Server-side secrets, validated inputs/outputs, rate limiting and AI guardrails. |
+| **Efficiency** | Lightweight application architecture, data handling and minimal mandatory infrastructure. |
+| **Testing** | Unit tests for domain logic, services, guardrails and API behavior. |
+| **Accessibility** | Semantic navigation, responsive layouts, keyboard support and accessible AQI communication are design priorities; formal audit remains a separate verification task. |
+| **AI value** | Grounded plan personalization and contextual conversational assistance. |
+| **Practical usability** | Demo scenarios, household preferences and an interactive action checklist. |
 
 ---
 
-## ⚠️ Health & Environmental Disclaimer
+## ⚠️ Health and Environmental Disclaimer
 
-AirNest provides environmental awareness and general lifestyle recommendations. It does not diagnose, prevent or treat medical conditions.
+AirNest provides environmental awareness and general lifestyle guidance. It does not diagnose, prevent or treat medical conditions. Environmental readings may be delayed, unavailable or different from conditions at a user's exact location. During severe pollution episodes, follow local official advisories and consult qualified healthcare professionals for medical concerns.
 
-Environmental readings can be delayed, unavailable or differ from local conditions. Users should follow local official advisories during severe pollution episodes and consult qualified healthcare professionals for medical concerns.
+---
+
+## 📚 References
+
+- [Google Gemini API documentation](https://ai.google.dev/gemini-api/docs)
+- [Google Gemini API model documentation](https://ai.google.dev/gemini-api/docs/models)
+- [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api)
+- [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api)
 
 ---
 
 ## 🌱 Vision
 
-AirNest is built around a simple belief:
-
 **Environmental data becomes valuable when people can use it to make better everyday decisions.**
 
-By combining reliable environmental data, deterministic safety logic, household context and responsible AI, AirNest aims to make clean-air decisions simpler, more practical and more accessible for urban families.
+By combining reliable environmental information, deterministic safety logic, household context and responsible AI, AirNest aims to make clean-air decisions simpler, more practical and more accessible for urban families.
 
----
-
-<p align="center">
-&#x20; <b>Built for families. Grounded in data. Guided by safety.</b>
-</p>
-
-<p align="center">
-&#x20; <i>AirNest · PromptWars Virtual Challenge 06</i>
-</p>
+<p align="center"><strong>Built for families. Grounded in data. Guided by safety.</strong></p>
+<p align="center"><em>AirNest · PromptWars Virtual Challenge 06</em></p>

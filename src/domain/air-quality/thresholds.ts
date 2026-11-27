@@ -41,6 +41,49 @@ export function getCategoryLabel(category: AqiCategory): string {
   }
 }
 
+export interface CleanestWorstHours {
+  cleanest: { isoTime: string; aqi: number; hourLabel: string };
+  worst: { isoTime: string; aqi: number; hourLabel: string };
+}
+
+/**
+ * Returns the cleanest and worst valid hours from a 24-hour forecast series.
+ */
+export function findCleanestAndWorstHours(
+  hourly?: HourlyAqiPoint[]
+): CleanestWorstHours | null {
+  if (!hourly || hourly.length < 2) return null;
+
+  const valid = hourly.filter((point) => {
+    const date = new Date(point.isoTime);
+    return !Number.isNaN(date.getTime()) && Number.isFinite(point.aqi) && point.aqi >= 0;
+  });
+
+  if (valid.length < 2) return null;
+
+  const cleanest = valid.reduce((low, cur) => (cur.aqi < low.aqi ? cur : low));
+  const worst = valid.reduce((high, cur) => (cur.aqi > high.aqi ? cur : high));
+
+  const formatHour = (iso: string) =>
+    new Date(iso).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+
+  return {
+    cleanest: {
+      isoTime: cleanest.isoTime,
+      aqi: Math.round(cleanest.aqi),
+      hourLabel: formatHour(cleanest.isoTime),
+    },
+    worst: {
+      isoTime: worst.isoTime,
+      aqi: Math.round(worst.aqi),
+      hourLabel: formatHour(worst.isoTime),
+    },
+  };
+}
+
 /**
  * Finds the lowest-AQI daytime window from hourly forecast data (06:00 - 20:00)
  * only when the best window is actually safe enough for brief ventilation or light activity (AQI <= 120).

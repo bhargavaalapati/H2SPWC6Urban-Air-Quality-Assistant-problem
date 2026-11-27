@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { assistantRequestSchema } from '@/domain/air-quality/schemas';
+import { apiError, getClientIp, parseJsonBodyWithLimit } from '@/lib/http';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { answerFamilyAirQuestion } from '@/services/ai-assistant';
 
@@ -14,15 +15,6 @@ function getDailyQuestionLimit(): number {
   return DEFAULT_DAILY_LIMIT;
 }
 
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim();
-    if (first) return first;
-  }
-  return 'local-client';
-}
-
 export async function POST(request: NextRequest) {
   const limit = getDailyQuestionLimit();
   const rate = checkRateLimit(`assistant:${getClientIp(request)}`, limit, DAY_WINDOW_MS);
@@ -34,42 +26,39 @@ export async function POST(request: NextRequest) {
   };
 
   if (!rate.allowed) {
-    return NextResponse.json(
+    return apiError(
+      `You've used all ${rate.limit} AI assistant questions for today. Your daily checklist, indoor hacks, and air-quality guide remain unlimited.`,
+      'RATE_LIMITED',
+      429,
       {
-        error: `You've used all ${rate.limit} AI assistant questions for today. Your daily checklist, indoor hacks, and air-quality guide remain unlimited.`,
-        code: 'RATE_LIMITED',
-        quota,
-      },
-      {
-        status: 429,
         headers: {
           'Retry-After': String(rate.retryAfterSeconds),
           'X-RateLimit-Limit': String(rate.limit),
           'X-RateLimit-Remaining': '0',
         },
+        extra: { quota },
       }
     );
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON request payload.', code: 'INVALID_JSON', quota },
-      { status: 400 }
-    );
+  const bodyResult = await parseJsonBodyWithLimit(request, undefined, { quota });
+  if (!bodyResult.ok) {
+    return bodyResult.response;
   }
 
-  const parsed = assistantRequestSchema.safeParse(body);
+  const parsed = assistantRequestSchema.safeParse(bodyResult.data);
   if (!parsed.success) {
-    return NextResponse.json(
+    return apiError(
+      parsed.error.issues[0]?.message ?? 'Please enter a valid question.',
+      'VALIDATION_ERROR',
+      400,
       {
-        error: parsed.error.issues[0]?.message ?? 'Please enter a valid question.',
-        code: 'VALIDATION_ERROR',
-        quota,
-      },
-      { status: 400 }
+        issues: parsed.error.issues.map((i) => ({
+          field: i.path.join('.') || 'question',
+          message: i.message,
+        })),
+        extra: { quota },
+      }
     );
   }
 
@@ -84,6 +73,7 @@ export async function POST(request: NextRequest) {
     {
       status: 200,
       headers: {
+        'Cache-Control': 'no-store',
         'X-RateLimit-Limit': String(rate.limit),
         'X-RateLimit-Remaining': String(rate.remaining),
       },

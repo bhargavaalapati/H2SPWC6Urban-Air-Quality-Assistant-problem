@@ -1,50 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { planRequestSchema } from '@/domain/air-quality/ai-guardrails';
+import { apiError, getClientIp, parseJsonBodyWithLimit } from '@/lib/http';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { generatePersonalizedPlan } from '@/services/ai-assistant';
-
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const first = forwarded.split(',')[0]?.trim();
-    if (first) return first;
-  }
-  return 'local-client';
-}
 
 export async function POST(request: NextRequest) {
   const rate = checkRateLimit(`plan:${getClientIp(request)}`, 20, 60_000);
   if (!rate.allowed) {
-    return NextResponse.json(
-      {
-        error: 'Too many plan requests. Please wait a moment and try again.',
-        code: 'RATE_LIMITED',
-      },
-      {
-        status: 429,
-        headers: { 'Retry-After': String(rate.retryAfterSeconds) },
-      }
+    return apiError(
+      'Too many plan requests. Please wait a moment and try again.',
+      'RATE_LIMITED',
+      429,
+      { headers: { 'Retry-After': String(rate.retryAfterSeconds) } }
     );
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: 'Invalid JSON request payload.', code: 'INVALID_JSON' },
-      { status: 400 }
-    );
+  const bodyResult = await parseJsonBodyWithLimit(request);
+  if (!bodyResult.ok) {
+    return bodyResult.response;
   }
 
-  const parsed = planRequestSchema.safeParse(body);
+  const parsed = planRequestSchema.safeParse(bodyResult.data);
   if (!parsed.success) {
-    return NextResponse.json(
+    return apiError(
+      parsed.error.issues[0]?.message ?? 'Invalid plan request data.',
+      'VALIDATION_ERROR',
+      400,
       {
-        error: parsed.error.issues[0]?.message ?? 'Invalid plan request data.',
-        code: 'VALIDATION_ERROR',
-      },
-      { status: 400 }
+        issues: parsed.error.issues.map((i) => ({
+          field: i.path.join('.') || 'body',
+          message: i.message,
+        })),
+      }
     );
   }
 
@@ -54,5 +41,8 @@ export async function POST(request: NextRequest) {
     parsed.data.preferAi
   );
 
-  return NextResponse.json(result, { status: 200 });
+  return NextResponse.json(result, {
+    status: 200,
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }

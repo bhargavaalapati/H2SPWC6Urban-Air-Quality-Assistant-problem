@@ -9,7 +9,6 @@ import {
   Trees,
   Wind,
 } from 'lucide-react';
-import { getCategoryLabel } from '@/domain/air-quality/thresholds';
 import type { AirQualitySnapshot, SafetyAssessment } from '@/domain/air-quality/types';
 import {
   formatMobilityLabel,
@@ -18,6 +17,10 @@ import {
   getAqiTheme,
   getProvenanceMeta,
 } from '@/lib/aqi-theme';
+import {
+  findCleanestAndWorstHours,
+  getCategoryLabel,
+} from '@/domain/air-quality/thresholds';
 
 interface AqiOverviewCardProps {
   snapshot: AirQualitySnapshot;
@@ -55,14 +58,19 @@ export function AqiOverviewCard({
   const categoryLabel = snapshot.category
     ? getCategoryLabel(snapshot.category)
     : 'Reading Unavailable';
+  const hourExtremes = findCleanestAndWorstHours(snapshot.hourlyForecast);
 
   if (isLoading) {
     return (
       <section
         aria-busy="true"
         aria-label="Loading air quality overview"
-        className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
+        className="rounded-3xl scroll-mt-20 border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
+        id="aqi-overview"
       >
+        <p className="sr-only" aria-live="polite">
+          {snapshot.location.name}: {snapshot.aqi !== null ? `US AQI ${snapshot.aqi}, ${categoryLabel}` : 'AQI unavailable'} ({provenance.label}).
+        </p>
         <div className="h-5 w-44 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
         <div className="mt-4 h-12 w-32 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800" />
         <div className="mt-4 h-4 w-3/4 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
@@ -84,6 +92,7 @@ export function AqiOverviewCard({
     <section
       aria-label="Current air quality overview"
       className={`rounded-3xl border p-5 shadow-xs sm:p-7 ${theme.surfaceBg} ${theme.border}`}
+      
     >
       {/* Top Row: Provenance & Timestamp */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -123,9 +132,10 @@ export function AqiOverviewCard({
                 US AQI
               </span>
               <span
-                className={`mt-1 inline-flex w-fit rounded-lg px-2.5 py-0.5 text-xs font-semibold ${theme.badgeBg} ${theme.badgeText}`}
+                className={`mt-1 inline-flex w-fit items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-semibold ${theme.badgeBg} ${theme.badgeText}`}
               >
-                {categoryLabel}
+                <span aria-hidden="true">{theme.symbol}</span>
+                <span>{categoryLabel}</span>
               </span>
             </div>
           </div>
@@ -252,9 +262,21 @@ export function AqiOverviewCard({
       {/* Compact Day-Trend Strip */}
       {forecastStrip.length >= 3 && (
         <div className="mt-4 rounded-2xl border border-slate-200/70 bg-white/80 p-3.5 dark:border-slate-800 dark:bg-slate-900/70">
-          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Projected AQI Across Today
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Projected AQI Across Today
+            </p>
+            {hourExtremes && (
+              <div className="flex flex-wrap gap-2 text-[11px]">
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 font-semibold text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+                  Cleanest: {hourExtremes.cleanest.hourLabel} (AQI {hourExtremes.cleanest.aqi})
+                </span>
+                <span className="rounded-full bg-rose-100 px-2.5 py-0.5 font-semibold text-rose-900 dark:bg-rose-950 dark:text-rose-200">
+                  Worst: {hourExtremes.worst.hourLabel} (AQI {hourExtremes.worst.aqi})
+                </span>
+              </div>
+            )}
+          </div>
           <div className="mt-2.5 grid grid-cols-3 gap-2 sm:grid-cols-6">
             {forecastStrip.map((point) => (
               <div

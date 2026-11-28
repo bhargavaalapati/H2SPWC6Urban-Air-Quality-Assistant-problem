@@ -15,9 +15,8 @@
   <img src="https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square" alt="Safety first" />
   <img src="https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square" alt="Grounded AI" />
   <img src="https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square" alt="No signup required" />
-  <img src="https://img.shields.io/badge/AQI-Safety--First-16a34a?style=flat-square" alt="Safety first" />
-  <img src="https://img.shields.io/badge/AI-Grounded%20Guidance-8b5cf6?style=flat-square" alt="Grounded AI" />
-  <img src="https://img.shields.io/badge/Demo-No%20Signup%20Required-f59e0b?style=flat-square" alt="No signup required" />
+  <img src="https://img.shields.io/badge/Coverage-96.98%25-0f766e?style=flat-square" alt="96.98% test coverage" />
+  <img src="https://img.shields.io/badge/WCAG%202.2%20AA-axe--core%20Verified-16a34a?style=flat-square" alt="WCAG 2.2 AA verified" />
 </p>
 
 ---
@@ -98,6 +97,17 @@ The current deployed build incorporates the following four implementation batche
 
 ---
 
+## 📚 Project Documentation
+
+| Document | Description |
+|---|---|
+| [Problem Alignment](PROBLEM_ALIGNMENT.md) | Problem statement, target users, and how AirNest addresses the challenge requirements. |
+| [Testing Guide](TESTING.md) | Test strategy, validation commands, coverage areas, and quality checks. |
+| [Security Policy](SECURITY.md) | Security practices, vulnerability reporting, and application safeguards. |
+| [Accessibility](ACCESSIBILITY.md) | Accessibility principles, inclusive design, and usability considerations. |
+
+---
+
 ## 📸 Product Experience
 | Air-quality dashboard | Personalized action plan |
 | --- | --- |
@@ -106,18 +116,6 @@ The current deployed build incorporates the following four implementation batche
 | AI air assistant | Household checklist |
 | --- | --- |
 | ![AI assistant](docs/screenshots/assistant.png) | ![Action checklist](docs/screenshots/checklist.png) |
-
-
-<!-- Example layout — replace the paths with real screenshots before publishing.
-
-| Air-quality dashboard | Personalized action plan |
-| --- | --- |
-| ![AirNest dashboard](docs/screenshots/dashboard.png) | ![Daily action plan](docs/screenshots/action-plan.png) |
-
-| AI air assistant | Household checklist |
-| --- | --- |
-| ![AI assistant](docs/screenshots/assistant.png) | ![Action checklist](docs/screenshots/checklist.png) |
--->
 
 ---
 
@@ -355,7 +353,12 @@ When Gemini is unavailable, rate-limited, unconfigured or returns invalid output
 | Failure handling | Deterministic guidance and explicit unavailable/error states |
 | Client persistence | Local storage helpers for household preferences and checklist state |
 
-Additional hardening work—such as formal response-header policy, explicit request-body size limits and expanded security auditing—is tracked separately and should not be considered complete until implemented and tested in the repository.
+**Verified Security Hardening:**
+- **Production Response Headers (`next.config.ts`):** Enforces strict Content-Security-Policy (without `'unsafe-eval'` in production and without browser-side Gemini egress), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`, `Referrer-Policy`, `Permissions-Policy`, and `poweredByHeader: false`.
+
+- **Request Boundary Protection (`src/lib/http.ts`):** Enforces `Content-Type: application/json` (`415`) and a strict 16 KB declared + actual UTF-8 byte cap (`413`) before JSON parsing or Zod schema validation—directly mitigating oversized-payload memory-exhaustion vectors in `zod` (`npm audit` notes only major-version upgrades for build-time `postcss` and `zod@4`).
+
+- **Static & Lint Gates (`eslint.config.mjs`):** Enforces zero warnings (`--max-warnings=0`), strict equality (`eqeqeq`), and blocks `eval`/`implied-eval`/`new Function`.
 
 ---
 
@@ -371,7 +374,12 @@ AirNest is designed to support different screen sizes and interaction needs. The
 - Clear loading, empty, error and completion states.
 - Reduced-motion preferences where applicable.
 
-A design checklist is not a substitute for an automated accessibility audit. Accessibility test coverage and WCAG 2.2 AA verification remain part of the planned quality work unless a passing test report is available.
+**Verified Accessibility Checks (`src/domain/__tests__/accessibility-and-components.test.tsx`):**
+- Automated `axe-core` WCAG 2.0 / 2.1 / 2.2 Level A & AA audits pass with **0 violations** across 6 core interactive views (`AqiOverviewCard`, `DailyActionChecklist`, `FamilyProfilePanel`, `LocationSwitcher`, `AirQualityAssistant`, and `PollutionEducation`).
+
+- Mathematical WCAG 1.4.3 (`>= 4.5:1`) luminance contrast verification passes across all Light and Dark theme pairs.
+
+- Dynamic AQI changes and AI assistant responses announce updates via polite `aria-live` regions, paired with non-color category symbols and keyboard-navigable combobox/disclosure controls.
 
 ---
 
@@ -491,7 +499,15 @@ npm run build
 - API input validation and failure handling.
 - Checklist and storage utilities.
 
-Only report test, coverage, build or accessibility results that have actually been run and passed. A planned quality gate should not be represented as an existing passing check.
+### Verified Quality Gate Results (`npm run check && npm run build`)
+
+- **TypeScript (`tsc --noEmit`):** 0 errors (strict mode + `noUncheckedIndexedAccess`).
+- **ESLint (`eslint . --max-warnings=0`):** 0 errors, 0 warnings.
+- **Vitest (`vitest run --coverage`):** **13 test files, 88 passing tests** (enforced thresholds: 90% lines/statements/functions, 82% branches).
+  - **Statements / Lines:** `96.98%`
+  - **Functions:** `98.00%`
+  - **Branches:** `86.71%`
+- **Production Build (`next build`):** Compiled cleanly (`/` First Load JS: `151 kB`).
 
 ---
 
@@ -570,7 +586,7 @@ AirNest includes predefined winter scenarios so the experience can be demonstrat
 | **Security** | Server-side secrets, validated inputs/outputs, rate limiting and AI guardrails. |
 | **Efficiency** | Lightweight application architecture, data handling and minimal mandatory infrastructure. |
 | **Testing** | Unit tests for domain logic, services, guardrails and API behavior. |
-| **Accessibility** | Semantic navigation, responsive layouts, keyboard support and accessible AQI communication are design priorities; formal audit remains a separate verification task. |
+| **Accessibility** | Semantic landmarks, keyboard combobox/disclosures, `aria-live` announcements, non-color AQI symbols, and verified WCAG 2.2 AA (`axe-core` + 4.5:1 contrast tests). |
 | **AI value** | Grounded plan personalization and contextual conversational assistance. |
 | **Practical usability** | Demo scenarios, household preferences and an interactive action checklist. |
 

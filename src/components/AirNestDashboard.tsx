@@ -189,25 +189,25 @@ export function AirNestDashboard() {
           <span className="font-semibold text-slate-500 dark:text-slate-400">Jump to:</span>
           <a
             href="#aqi-overview"
-            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-white-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
           >
             Air Overview
           </a>
           <a
             href="#action-plan"
-            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-white-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
           >
             Action Plan &amp; Impact
           </a>
           <a
             href="#family-assistant"
-            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-white-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
           >
             Ask Assistant
           </a>
           <a
             href="#household-profile"
-            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="inline-flex min-h-[36px] items-center rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-700 hover:border-[#1f5c4d] hover:text-white-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
           >
             Who Is This For
           </a>

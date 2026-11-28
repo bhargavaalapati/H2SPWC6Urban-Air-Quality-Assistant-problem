@@ -1,17 +1,27 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import axe from 'axe-core';
 import { DEMO_SCENARIOS } from '@/domain/air-quality/demo-scenarios';
 import { buildDeterministicPlan } from '@/domain/air-quality/recommendations';
 import { DEFAULT_FAMILY_PROFILE } from '@/domain/air-quality/schemas';
 import { AqiOverviewCard } from '@/components/AqiOverviewCard';
+import { AirQualityAssistant } from '@/components/AirQualityAssistant';
 import { DailyActionChecklist } from '@/components/DailyActionChecklist';
 import { FamilyProfilePanel } from '@/components/FamilyProfilePanel';
+import { LocationSwitcher } from '@/components/LocationSwitcher';
 import { PollutionEducation } from '@/components/PollutionEducation';
 import { THEME_CONTRAST_PAIRS } from '@/lib/aqi-theme';
 
 const SEVERE_DEMO = DEMO_SCENARIOS[0]!;
+
+beforeAll(() => {
+  // jsdom does not implement canvas 2D contexts; returning null lets axe-core skip ligature canvas probing cleanly.
+  Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+    configurable: true,
+    value: () => null,
+  });
+});
 
 function hexToRelativeLuminance(hex: string): number {
   const clean = hex.replace('#', '');
@@ -38,8 +48,6 @@ async function expectZeroAxeViolations(container: HTMLElement) {
       values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'],
     },
     rules: {
-      // jsdom does not compute CSS background images/gradients for canvas contrast checks;
-      // contrast ratios are verified mathematically in the dedicated WCAG 1.4.3 test below.
       'color-contrast': { enabled: false },
     },
   });
@@ -60,7 +68,7 @@ describe('WCAG 2.2 AA Contrast & Component Accessibility', () => {
     }
   });
 
-  it('AqiOverviewCard renders non-color symbol, provenance badge, and passes axe-core', async () => {
+  it('AqiOverviewCard renders non-color symbol, live announcement, and passes axe-core', async () => {
     const plan = buildDeterministicPlan(SEVERE_DEMO.snapshot, DEFAULT_FAMILY_PROFILE);
     const { container } = render(
       <AqiOverviewCard
@@ -75,11 +83,12 @@ describe('WCAG 2.2 AA Contrast & Component Accessibility', () => {
     expect(screen.getByText('Very Unhealthy')).toBeTruthy();
     expect(screen.getByText('Demo Scenario (Simulated)')).toBeTruthy();
     expect(screen.getByText('⬢')).toBeTruthy();
+    expect(container.querySelector('[aria-live="polite"]')?.textContent).toContain('US AQI 268');
 
     await expectZeroAxeViolations(container);
   });
 
-  it('DailyActionChecklist toggles completion, opens impact calculation disclosure, and passes axe-core', async () => {
+  it('DailyActionChecklist toggles completion, opens impact disclosure, and passes axe-core', async () => {
     const plan = buildDeterministicPlan(SEVERE_DEMO.snapshot, DEFAULT_FAMILY_PROFILE);
     const onToggle = vi.fn();
     const onReset = vi.fn();
@@ -128,10 +137,40 @@ describe('WCAG 2.2 AA Contrast & Component Accessibility', () => {
 
     const communityTab = screen.getByRole('button', { name: /Community \/ School/i });
     fireEvent.click(communityTab);
-    expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ audienceMode: 'community' })
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ audienceMode: 'community' }));
+
+    await expectZeroAxeViolations(container);
+  });
+
+  it('LocationSwitcher exposes accessible combobox, demo triggers, and passes axe-core', async () => {
+    const { container } = render(
+      <LocationSwitcher
+        activeLocationDisplay="New Delhi"
+        activeDemoId={SEVERE_DEMO.id}
+        isLoading={false}
+        isOffline={false}
+        errorMessage={null}
+        onSearchCity={vi.fn(async () => {})}
+        onSelectLocation={vi.fn(async () => {})}
+        onSelectDemo={vi.fn()}
+        onUseGeolocation={vi.fn(async () => {})}
+      />
     );
 
+    expect(screen.getByRole('combobox')).toBeTruthy();
+    await expectZeroAxeViolations(container);
+  });
+
+  it('AirQualityAssistant exposes labelled input, starter prompts, and passes axe-core', async () => {
+    const { container } = render(
+      <AirQualityAssistant
+        snapshot={SEVERE_DEMO.snapshot}
+        profile={DEFAULT_FAMILY_PROFILE}
+        isOffline={false}
+      />
+    );
+
+    expect(screen.getByLabelText(/Ask a practical air-quality question/i)).toBeTruthy();
     await expectZeroAxeViolations(container);
   });
 

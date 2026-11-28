@@ -1,17 +1,10 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import {
-  AlertCircle,
-  Loader2,
-  MessageCircle,
-  RefreshCw,
-  Send,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react';
+import { AlertCircle, Loader2, MessageCircle, RefreshCw, Send } from 'lucide-react';
 import type { AssistantReply } from '@/domain/air-quality/ai-guardrails';
 import type { AirQualitySnapshot, FamilyProfile } from '@/domain/air-quality/types';
+import { AssistantTurnCard, type ConversationTurn } from '@/components/AssistantTurnCard';
 
 interface QuotaInfo {
   remaining: number;
@@ -24,12 +17,6 @@ interface AirQualityAssistantProps {
   profile: FamilyProfile;
   isOffline: boolean;
   onQuestionAnswered?: () => void;
-}
-
-interface ConversationTurn {
-  id: string;
-  question: string;
-  reply: AssistantReply;
 }
 
 const STARTER_QUESTIONS: readonly string[] = [
@@ -78,11 +65,7 @@ export function AirQualityAssistant({
       const response = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: trimmed,
-          snapshot,
-          profile,
-        }),
+        body: JSON.stringify({ question: trimmed, snapshot, profile }),
       });
 
       const data = (await response.json()) as {
@@ -96,9 +79,7 @@ export function AirQualityAssistant({
       }
 
       if (!response.ok || !data.reply) {
-        setErrorMessage(
-          data.error ?? 'Could not get a response right now. Please try again.'
-        );
+        setErrorMessage(data.error ?? 'Could not get a response right now. Please try again.');
         setLastFailedQuestion(response.status === 429 ? null : trimmed);
         return;
       }
@@ -114,9 +95,7 @@ export function AirQualityAssistant({
       setQuestion('');
       onQuestionAnswered?.();
     } catch {
-      setErrorMessage(
-        'Network issue reaching the assistant. Check your connection and try again.'
-      );
+      setErrorMessage('Network issue reaching the assistant. Check your connection and try again.');
       setLastFailedQuestion(trimmed);
     } finally {
       setIsLoading(false);
@@ -136,7 +115,7 @@ export function AirQualityAssistant({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="flex items-start gap-2.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-[#1f5c4d] dark:bg-emerald-950 dark:text-emerald-300">
-            <MessageCircle aria-hidden="true" className="h-5 w-5"/>
+            <MessageCircle aria-hidden="true" className="h-5 w-5" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
@@ -161,7 +140,6 @@ export function AirQualityAssistant({
         </span>
       </div>
 
-      {/* Starter Prompt Chips */}
       <div className="mt-4">
         <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
           Try a practical household question:
@@ -173,7 +151,7 @@ export function AirQualityAssistant({
               type="button"
               disabled={isLoading || isLimitReached}
               onClick={() => void askQuestion(prompt)}
-              className="min-h-[36px] rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-left text-xs font-medium text-slate-700 transition-colors hover:border-[#1f5c4d] hover:bg-emerald-50/60 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:bg-emerald-950/50"
+              className="min-h-[36px] rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-left text-xs font-medium text-slate-700 transition-colors hover:border-[#1f5c4d] hover:bg-emerald-50/60 hover:text-white-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:border-emerald-500 dark:hover:bg-emerald-950/50"
             >
               {prompt}
             </button>
@@ -181,7 +159,6 @@ export function AirQualityAssistant({
         </div>
       </div>
 
-      {/* Question Form */}
       <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2 sm:flex-row">
         <label htmlFor="assistant-question-input" className="sr-only">
           Ask a practical air-quality question for your family
@@ -206,22 +183,21 @@ export function AirQualityAssistant({
           className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#1f5c4d] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#17483c] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500"
         >
           {isLoading ? (
-            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin"/>
+            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
           ) : (
-            <Send aria-hidden="true" className="h-4 w-4"/>
+            <Send aria-hidden="true" className="h-4 w-4" />
           )}
           <span>{isLoading ? 'Checking...' : 'Ask'}</span>
         </button>
       </form>
 
-      {/* Error + Retry State */}
       {errorMessage && (
         <div
           role="alert"
           className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-900 dark:border-rose-900 dark:bg-rose-950/60 dark:text-rose-200"
         >
           <div className="flex items-center gap-2">
-            <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0"/>
+            <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span>{errorMessage}</span>
           </div>
           {lastFailedQuestion && (
@@ -230,14 +206,13 @@ export function AirQualityAssistant({
               onClick={() => void askQuestion(lastFailedQuestion)}
               className="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-white px-2.5 py-1 font-semibold text-rose-900 hover:bg-rose-100 dark:border-rose-700 dark:bg-rose-900/60 dark:text-rose-100"
             >
-              <RefreshCw aria-hidden="true" className="h-3 w-3"/>
+              <RefreshCw aria-hidden="true" className="h-3 w-3" />
               <span>Retry</span>
             </button>
           )}
         </div>
       )}
 
-      {/* Loading Skeleton */}
       {isLoading && (
         <div
           aria-busy="true"
@@ -249,67 +224,15 @@ export function AirQualityAssistant({
         </div>
       )}
 
-      {/* Conversation History or Empty State */}
       {turns.length === 0 && !isLoading ? (
         <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400">
           Tap any question above or type your own. Answers always respect verified AQI safety
           thresholds and never invent pollutant readings.
         </div>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div aria-live="polite" className="mt-4 space-y-4">
           {turns.map((turn) => (
-            <article
-              key={turn.id}
-              className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-950/60"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">
-                  Q: {turn.question}
-                </p>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                    turn.reply.responseMode === 'ai'
-                      ? 'bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200'
-                      : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200'
-                  }`}
-                >
-                  {turn.reply.responseMode === 'ai' ? (
-                    <>
-                      <Sparkles aria-hidden="true" className="h-3 w-3"/>
-                      AI Grounded
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck aria-hidden="true" className="h-3 w-3"/>
-                      Built-in Safety Guide
-                    </>
-                  )}
-                </span>
-              </div>
-
-              <p className="mt-2.5 text-sm leading-relaxed text-slate-800 dark:text-slate-200">
-                {turn.reply.answer}
-              </p>
-
-              {turn.reply.practicalSteps.length > 0 && (
-                <ul className="mt-3 space-y-1.5 border-t border-slate-200/70 pt-3 dark:border-slate-800">
-                  {turn.reply.practicalSteps.map((step, index) => (
-                    <li
-                      key={`${turn.id}-step-${index}`}
-                      className="flex items-start gap-2 text-xs leading-relaxed text-slate-700 dark:text-slate-300"
-                    >
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1f5c4d] dark:bg-emerald-400" />
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">
-                {turn.reply.dataNote}
-                {turn.reply.fallbackReason ? ` (${turn.reply.fallbackReason})` : ''}
-              </p>
-            </article>
+            <AssistantTurnCard key={turn.id} turn={turn} />
           ))}
         </div>
       )}

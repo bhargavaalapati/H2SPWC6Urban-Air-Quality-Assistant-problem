@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Compass, Loader2, MapPin, Search, Sparkles } from 'lucide-react';
 import { DEMO_SCENARIOS } from '@/domain/air-quality/demo-scenarios';
 import type { LocationInfo } from '@/domain/air-quality/types';
+import { useCitySuggestions } from '@/hooks/useCitySuggestions';
 
 interface LocationSwitcherProps {
   activeLocationDisplay: string;
@@ -28,68 +29,24 @@ export function LocationSwitcher({
   onSelectDemo,
   onUseGeolocation,
 }: LocationSwitcherProps) {
-  const [cityInput, setCityInput] = useState('');
   const [geoBusy, setGeoBusy] = useState(false);
-  const [suggestions, setSuggestions] = useState<LocationInfo[]>([]);
-  const [isSuggesting, setIsSuggesting] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [highlightedIdx, setHighlightedIdx] = useState(-1);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
-
-  // Debounced live city autocomplete
-  useEffect(() => {
-    const trimmed = cityInput.trim();
-    if (trimmed.length < 2 || isOffline) {
-      setSuggestions([]);
-      setDropdownOpen(false);
-      setIsSuggesting(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      setIsSuggesting(true);
-      try {
-        const res = await fetch(
-          `/api/air-quality?suggest=${encodeURIComponent(trimmed)}`,
-          { signal: controller.signal }
-        );
-        if (!res.ok) return;
-        const data = (await res.json()) as { suggestions?: LocationInfo[] };
-        const items = data.suggestions ?? [];
-        setSuggestions(items);
-        setHighlightedIdx(-1);
-        setDropdownOpen(items.length > 0);
-      } catch {
-        // Ignore abort or transient suggestion errors
-      } finally {
-        setIsSuggesting(false);
-      }
-    }, 260);
-
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [cityInput, isOffline]);
+  const {
+    cityInput,
+    setCityInput,
+    suggestions,
+    isSuggesting,
+    dropdownOpen,
+    setDropdownOpen,
+    highlightedIdx,
+    setHighlightedIdx,
+    containerRef,
+    handleKeyDown,
+    clearSuggestions,
+  } = useCitySuggestions(isOffline);
 
   const pickSuggestion = async (loc: LocationInfo) => {
     const label = loc.region ? `${loc.name}, ${loc.region}` : loc.name;
-    setCityInput(label);
-    setDropdownOpen(false);
-    setSuggestions([]);
+    clearSuggestions(label);
     await onSelectLocation(loc);
   };
 
@@ -103,21 +60,6 @@ export function LocationSwitcher({
     if (trimmed.length < 2 || isLoading || isOffline) return;
     setDropdownOpen(false);
     await onSearchCity(trimmed);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (!dropdownOpen || suggestions.length === 0) return;
-
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setHighlightedIdx((prev) => (prev + 1) % suggestions.length);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setHighlightedIdx((prev) => (prev <= 0 ? suggestions.length - 1 : prev - 1));
-    } else if (event.key === 'Escape') {
-      setDropdownOpen(false);
-      setHighlightedIdx(-1);
-    }
   };
 
   const handleGeoClick = async () => {
@@ -142,7 +84,10 @@ export function LocationSwitcher({
             <label htmlFor="city-search-input" className="sr-only">
               Enter your city for live air quality
             </label>
-            <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"/>
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            />
             <input
               id="city-search-input"
               type="text"
@@ -165,10 +110,12 @@ export function LocationSwitcher({
               disabled={isLoading || isOffline}
             />
             {isSuggesting && (
-              <Loader2 aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400"/>
+              <Loader2
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400"
+              />
             )}
 
-            {/* Autocomplete Suggestions Dropdown */}
             {dropdownOpen && suggestions.length > 0 && (
               <ul
                 id="city-suggestions-listbox"
@@ -199,7 +146,10 @@ export function LocationSwitcher({
                             : 'text-slate-800 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800'
                         }`}
                       >
-                        <MapPin aria-hidden="true" className="h-4 w-4 shrink-0 text-[#1f5c4d] dark:text-emerald-400"/>
+                        <MapPin
+                          aria-hidden="true"
+                          className="h-4 w-4 shrink-0 text-[#1f5c4d] dark:text-emerald-400"
+                        />
                         <span className="min-w-0 flex-1 truncate">
                           <strong className="font-semibold">{loc.name}</strong>
                           {sub && (
@@ -223,9 +173,9 @@ export function LocationSwitcher({
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[#1f5c4d] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#17483c] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500"
             >
               {isLoading ? (
-                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin"/>
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
               ) : (
-                <MapPin aria-hidden="true" className="h-4 w-4"/>
+                <MapPin aria-hidden="true" className="h-4 w-4" />
               )}
               <span>Check City</span>
             </button>
@@ -238,9 +188,12 @@ export function LocationSwitcher({
               title="Optional: detect your city for local live readings"
             >
               {geoBusy ? (
-                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin"/>
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
               ) : (
-                <Compass aria-hidden="true" className="h-4 w-4 text-[#1f5c4d] dark:text-emerald-400"/>
+                <Compass
+                  aria-hidden="true"
+                  className="h-4 w-4 text-[#1f5c4d] dark:text-emerald-400"
+                />
               )}
               <span className="hidden sm:inline">Near Me</span>
             </button>
@@ -248,7 +201,10 @@ export function LocationSwitcher({
         </form>
 
         <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-          <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#1f5c4d] dark:text-emerald-400"/>
+          <MapPin
+            aria-hidden="true"
+            className="h-3.5 w-3.5 shrink-0 text-[#1f5c4d] dark:text-emerald-400"
+          />
           <span>
             Active:{' '}
             <strong className="font-semibold text-slate-900 dark:text-white">
@@ -270,7 +226,7 @@ export function LocationSwitcher({
       <div className="mt-4 border-t border-slate-100 pt-3.5 dark:border-slate-800">
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            <Sparkles aria-hidden="true" className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400"/>
+            <Sparkles aria-hidden="true" className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
             1-Click Demo Scenarios (Simulated):
           </span>
 

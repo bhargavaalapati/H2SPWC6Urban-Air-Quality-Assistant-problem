@@ -108,6 +108,8 @@ export interface GeminiJsonCallOptions {
   systemInstruction: string;
   contents: string;
   responseSchema: Schema;
+  retryDelayMs?: number;
+  timeoutMs?: number;
 }
 
 /**
@@ -151,7 +153,7 @@ export async function callGeminiWithRotation(
               responseSchema: options.responseSchema,
             },
           }),
-          AI_TIMEOUT_MS
+          options.timeoutMs ?? AI_TIMEOUT_MS,
         );
 
         if (response.text) {
@@ -170,7 +172,8 @@ export async function callGeminiWithRotation(
         }
 
         if (offset < keys.length - 1 && isRetryableStatus(error)) {
-          await sleep(350);
+          const delay = options.retryDelayMs ?? 350;
+          if (delay > 0) await sleep(delay);
           continue;
         }
       }

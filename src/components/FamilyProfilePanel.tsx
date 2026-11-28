@@ -1,7 +1,11 @@
 'use client';
 
-import { Building2, Home, Loader2, SlidersHorizontal, Sparkles, Users } from 'lucide-react';
-import type { CommunityType, CookingFuelType, FamilyProfile } from '@/domain/air-quality/types';
+import { Loader2, SlidersHorizontal, Sparkles, Users } from 'lucide-react';
+import type { CookingFuelType, FamilyProfile } from '@/domain/air-quality/types';
+import {
+  PROFILE_SELECT_CLASS,
+  ProfileAudienceFields,
+} from '@/components/ProfileAudienceFields';
 
 interface FamilyProfilePanelProps {
   profile: FamilyProfile;
@@ -28,6 +32,35 @@ export function FamilyProfilePanel({
 
   const isCommunity = profile.audienceMode === 'community';
 
+  const contextToggles = [
+    {
+      label: 'Children present',
+      active: profile.hasChildren,
+      onClick: () => update('hasChildren', !profile.hasChildren),
+    },
+    {
+      label: 'Older adults (60+)',
+      active: profile.hasOlderAdults,
+      onClick: () => update('hasOlderAdults', !profile.hasOlderAdults),
+    },
+    {
+      label: 'Extra air sensitivity',
+      active: profile.sensitivity === 'elevated',
+      onClick: () =>
+        update('sensitivity', profile.sensitivity === 'elevated' ? 'standard' : 'elevated'),
+    },
+    {
+      label: 'Have air purifier',
+      active: profile.hasAirPurifier,
+      onClick: () => update('hasAirPurifier', !profile.hasAirPurifier),
+    },
+    {
+      label: 'Leaf/waste burning nearby',
+      active: profile.openWasteBurningNearby,
+      onClick: () => update('openWasteBurningNearby', !profile.openWasteBurningNearby),
+    },
+  ] as const;
+
   return (
     <section
       aria-label="Household or community personalization"
@@ -51,154 +84,15 @@ export function FamilyProfilePanel({
         </span>
       </div>
 
-      {/* Household vs Community Mode Switch */}
-      <div
-        role="group"
-        aria-label="Plan audience mode"
-        className="mt-3 grid grid-cols-2 gap-1.5 rounded-xl bg-slate-100 p-1 dark:bg-slate-950"
-      >
-        <button
-          type="button"
-          aria-pressed={!isCommunity}
-          onClick={() => update('audienceMode', 'household')}
-          className={`inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            !isCommunity
-              ? 'bg-white text-slate-950 shadow-2xs dark:bg-slate-800 dark:text-white'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-          }`}
-        >
-          <Home className="h-3.5 w-3.5" aria-hidden="true" />
-          <span>Family / Home</span>
-        </button>
-        <button
-          type="button"
-          aria-pressed={isCommunity}
-          onClick={() => update('audienceMode', 'community')}
-          className={`inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            isCommunity
-              ? 'bg-white text-slate-950 shadow-2xs dark:bg-slate-800 dark:text-white'
-              : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-          }`}
-        >
-          <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
-          <span>Community / School</span>
-        </button>
-      </div>
-
-      <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-        {isCommunity
-          ? 'Tailor smog advisories and impact totals for an RWA, school, or neighbourhood group.'
-          : 'Adjust a few quick details—your daily actions and impact calculations adapt immediately.'}
-      </p>
+      <ProfileAudienceFields profile={profile} onUpdate={update} />
 
       <div className="mt-4 space-y-4">
-        {isCommunity ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div>
-              <label
-                htmlFor="community-type-select"
-                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
-              >
-                Community type
-              </label>
-              <select
-                id="community-type-select"
-                value={profile.communityType}
-                onChange={(e) => update('communityType', e.target.value as CommunityType)}
-                className="mt-1.5 min-h-[42px] w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 transition-colors focus:border-[#1f5c4d] focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-emerald-500 dark:focus:bg-slate-900 [&>option]:bg-white [&>option]:text-slate-900 dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
-              >
-                <option value="rwa">Apartment / RWA</option>
-                <option value="school">School / Campus</option>
-                <option value="neighbourhood">Neighbourhood Group</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="community-size-input"
-                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
-              >
-                Approximate group size (5–50,000)
-              </label>
-              <input
-                id="community-size-input"
-                type="number"
-                min={5}
-                max={50000}
-                step={5}
-                value={profile.communitySize}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  if (Number.isFinite(val)) {
-                    update('communitySize', Math.min(50000, Math.max(5, Math.round(val))));
-                  }
-                }}
-                className="mt-1.5 min-h-[42px] w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 transition-colors focus:border-[#1f5c4d] focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-emerald-500 dark:focus:bg-slate-900"
-              />
-            </div>
-          </div>
-        ) : (
-          <div>
-            <label
-              htmlFor="household-size-input"
-              className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300"
-            >
-              <span>Household size</span>
-              <span className="font-normal text-slate-500 dark:text-slate-400">
-                {profile.householdSize} members
-              </span>
-            </label>
-            <input
-              id="household-size-input"
-              type="range"
-              min={1}
-              max={10}
-              value={profile.householdSize}
-              onChange={(e) => update('householdSize', Number(e.target.value))}
-              className="mt-1.5 h-2 w-full cursor-pointer accent-[#1f5c4d] dark:accent-emerald-400"
-            />
-          </div>
-        )}
-
         <fieldset>
           <legend className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Health &amp; home context
           </legend>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            {(
-              [
-                {
-                  label: 'Children present',
-                  active: profile.hasChildren,
-                  onClick: () => update('hasChildren', !profile.hasChildren),
-                },
-                {
-                  label: 'Older adults (60+)',
-                  active: profile.hasOlderAdults,
-                  onClick: () => update('hasOlderAdults', !profile.hasOlderAdults),
-                },
-                {
-                  label: 'Extra air sensitivity',
-                  active: profile.sensitivity === 'elevated',
-                  onClick: () =>
-                    update(
-                      'sensitivity',
-                      profile.sensitivity === 'elevated' ? 'standard' : 'elevated'
-                    ),
-                },
-                {
-                  label: 'Have air purifier',
-                  active: profile.hasAirPurifier,
-                  onClick: () => update('hasAirPurifier', !profile.hasAirPurifier),
-                },
-                {
-                  label: 'Leaf/waste burning nearby',
-                  active: profile.openWasteBurningNearby,
-                  onClick: () =>
-                    update('openWasteBurningNearby', !profile.openWasteBurningNearby),
-                },
-              ] as const
-            ).map((toggle) => (
+            {contextToggles.map((toggle) => (
               <button
                 key={toggle.label}
                 type="button"
@@ -227,7 +121,7 @@ export function FamilyProfilePanel({
             id="cooking-fuel-select"
             value={profile.cookingFuel}
             onChange={(e) => update('cookingFuel', e.target.value as CookingFuelType)}
-            className="mt-1.5 min-h-[42px] w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 transition-colors focus:border-[#1f5c4d] focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-emerald-500 dark:focus:bg-slate-900 [&>option]:bg-white [&>option]:text-slate-900 dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
+            className={PROFILE_SELECT_CLASS}
           >
             <option value="lpg_induction">Clean fuel (LPG / PNG / Induction)</option>
             <option value="mixed_or_solid">Mixed / Biomass / Solid fuel</option>
@@ -245,12 +139,9 @@ export function FamilyProfilePanel({
             id="outdoor-time-select"
             value={profile.typicalOutdoorTime}
             onChange={(e) =>
-              update(
-                'typicalOutdoorTime',
-                e.target.value as FamilyProfile['typicalOutdoorTime']
-              )
+              update('typicalOutdoorTime', e.target.value as FamilyProfile['typicalOutdoorTime'])
             }
-            className="mt-1.5 min-h-[42px] w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 transition-colors focus:border-[#1f5c4d] focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-emerald-500 dark:focus:bg-slate-900 [&>option]:bg-white [&>option]:text-slate-900 dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
+            className={PROFILE_SELECT_CLASS}
           >
             <option value="morning">Morning (6–10 AM)</option>
             <option value="afternoon">Afternoon (12–4 PM)</option>
@@ -272,7 +163,7 @@ export function FamilyProfilePanel({
             onChange={(e) =>
               update('primaryCommute', e.target.value as FamilyProfile['primaryCommute'])
             }
-            className="mt-1.5 min-h-[42px] w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 transition-colors focus:border-[#1f5c4d] focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-emerald-500 dark:focus:bg-slate-900 [&>option]:bg-white [&>option]:text-slate-900 dark:[&>option]:bg-slate-900 dark:[&>option]:text-slate-100"
+            className={PROFILE_SELECT_CLASS}
           >
             <option value="public_transit">Public transit (Metro / Bus)</option>
             <option value="walk_cycle">Walking or cycling</option>
@@ -293,9 +184,7 @@ export function FamilyProfilePanel({
             ) : (
               <Sparkles className="h-4 w-4" aria-hidden="true" />
             )}
-            <span>
-              {isAiLoading ? 'Tailoring your daily plan...' : 'Tailor Plan with AI'}
-            </span>
+            <span>{isAiLoading ? 'Tailoring your daily plan...' : 'Tailor Plan with AI'}</span>
           </button>
 
           <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
